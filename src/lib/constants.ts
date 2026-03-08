@@ -102,6 +102,8 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
       { id: "d4", label: "Geciken Ay", type: "number", placeholder: "3", showWhen: { fieldId: "d5", values: ["Kira Borcunun Ödenmesi"] } },
       { id: "d6", label: "Tahliye Gerekçesi", type: "textarea", placeholder: "Tahliye talebinin sebebi...", showWhen: { fieldId: "d5", values: ["Tahliye Talebi"] } },
       { id: "d7", label: "Hasar / Sorun Açıklaması", type: "textarea", placeholder: "Hasar veya bakım konusunu açıklayın...", showWhen: { fieldId: "d5", values: ["Hasar / Bakım"] } },
+      { id: "addr", label: "Adres (İsteğe bağlı)", type: "textarea", placeholder: "İhtar gönderilecek adres" },
+      { id: "tc", label: "TC Kimlik No (İsteğe bağlı)", type: "text", placeholder: "11 haneli" },
     ],
   },
   {
@@ -126,6 +128,8 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
       { id: "d7", label: "Fazla Mesai Dönemi", type: "text", placeholder: "Örn: Ocak 2024 - Aralık 2024", showWhen: { fieldId: "d4", values: ["Fazla Mesai"] } },
       { id: "d8", label: "Kullanılmayan İzin Günü", type: "number", placeholder: "14", showWhen: { fieldId: "d4", values: ["Yıllık İzin Ücreti"] } },
       { id: "d9", label: "İşten Çıkarılma Gerekçesi (İsteğe bağlı)", type: "textarea", placeholder: "İşverenin bildirdiği gerekçe varsa...", showWhen: { fieldId: "d4", values: ["İşe İade"] } },
+      { id: "addr", label: "Adres (İsteğe bağlı)", type: "textarea", placeholder: "Davacı adresi" },
+      { id: "tc", label: "TC Kimlik No (İsteğe bağlı)", type: "text", placeholder: "11 haneli" },
     ],
   },
   {
@@ -159,6 +163,8 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
       { id: "d2", label: "Borç Tutarı (₺)", type: "number", placeholder: "10000", required: true },
       { id: "d3", label: "Borç Tarihi", type: "date" },
       { id: "d4", label: "Borç Sebebi", type: "textarea", placeholder: "Borcun sebebi..." },
+      { id: "addr", label: "Adres (İsteğe bağlı)", type: "textarea", placeholder: "Alacaklı adresi" },
+      { id: "tc", label: "TC Kimlik No (İsteğe bağlı)", type: "text", placeholder: "11 haneli" },
     ],
   },
   {
@@ -169,8 +175,9 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
     fields: [
       { id: "d0", label: "Vekil Eden Ad Soyad", type: "text", placeholder: "Ad Soyad", required: true },
       { id: "d1", label: "Vekil Ad Soyad", type: "text", placeholder: "Ad Soyad", required: true },
-      { id: "d2", label: "TC Kimlik No (Vekil Eden)", type: "text", placeholder: "11 haneli" },
+      { id: "d2", label: "TC Kimlik No (Vekil Eden) (İsteğe bağlı)", type: "text", placeholder: "11 haneli" },
       { id: "d3", label: "Vekaletname Konusu", type: "textarea", placeholder: "Yetki kapsamı..." },
+      { id: "addr", label: "Adres (İsteğe bağlı)", type: "textarea", placeholder: "Vekil eden adresi" },
     ],
   },
   {
@@ -183,6 +190,8 @@ export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
       { id: "d1", label: "Muhatap Kurum", type: "text", placeholder: "Kurum adı", required: true },
       { id: "d2", label: "Konu", type: "text", placeholder: "Dilekçe konusu" },
       { id: "d3", label: "Açıklama", type: "textarea", placeholder: "Detaylı açıklama..." },
+      { id: "addr", label: "Adres (İsteğe bağlı)", type: "textarea", placeholder: "Dilekçe sahibi adresi" },
+      { id: "tc", label: "TC Kimlik No (İsteğe bağlı)", type: "text", placeholder: "11 haneli" },
     ],
   },
 ];

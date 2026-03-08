@@ -40,16 +40,23 @@ export function DocumentPreview({ content, docName, onCopySuccess }: DocumentPre
 
   const handleDownloadPdf = () => {
     const safeTitle = escapeHtml(docName);
+    const contentNoFooter = content.replace(/\n---\n[\s\S]*?HukukAI[\s\S]*?---\s*/g, "").replace(/\n---\s*$/g, "").trim();
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${safeTitle}</title>
 <style>
-@page { size: A4; margin: 2.5cm; }
-body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5; color: #000; margin: 0; padding: 2.5cm; }
-h1 { font-size: 14pt; text-align: center; margin-bottom: 24pt; text-transform: uppercase; }
+@page { size: A4; margin: 1.8cm; }
+body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4; color: #000; margin: 0; padding: 1.8cm; position: relative; }
+.watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-35deg); font-size: 72pt; color: rgba(0,0,0,0.06); font-weight: bold; white-space: nowrap; pointer-events: none; z-index: 0; }
+.content-wrap { position: relative; z-index: 1; }
+h1 { font-size: 13pt; text-align: center; margin-bottom: 16pt; text-transform: uppercase; }
 .content { white-space: pre-wrap; }
 strong { font-weight: bold; }
 </style></head><body>
+<div class="watermark">HukukAI (Hukuki Danışman)</div>
+<div class="content-wrap">
+<div style="font-size:9pt;color:#666;margin-bottom:12pt;">Bu belge HukukAI taslağıdır. Resmi kullanım öncesi avukata danışınız.</div>
 <h1>${safeTitle}</h1>
-<div class="content">${formatForPrint(content)}</div>
+<div class="content">${formatForPrint(contentNoFooter)}</div>
+</div>
 </body></html>`;
     const w = window.open("", "_blank");
     if (!w) return;

@@ -4,12 +4,12 @@ import { DOC_NAMES, DOCUMENT_TEMPLATES } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rateLimit";
 
 const DOCUMENT_FOOTER =
-  "\n\n---\nBu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğinde olup genel bilgi amaçlıdır. Resmi makamlara sunmadan veya hukuki işlemde kullanmadan önce mutlaka bir avukata danışınız. HukukAI bu belgenin kullanımından doğabilecek hukuki sonuçlardan sorumlu değildir.\n---";
+  "\n\n---\nBu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğindedir. Resmi kullanım öncesi avukata danışınız. HukukAI hukuki sorumluluk üstlenmez.\n---";
 
 function ensureFooter(content: string): string {
   const oldShort = "Bu belge HukukAI tarafından oluşturulmuştur.";
-  const hasNewFooter = content.includes("Resmi makamlara sunmadan");
-  if (hasNewFooter) return content;
+  const hasFooter = content.includes("HukukAI") && (content.includes("avukata danışınız") || content.includes("Taslak"));
+  if (hasFooter) return content;
   let clean = content.replace(new RegExp(oldShort.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), "").trimEnd();
   return clean + DOCUMENT_FOOTER;
 }
@@ -29,7 +29,7 @@ function buildFallbackDocument(docName: string, formData: Record<string, string>
     "İmza",
     "",
     "---",
-    "Bu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğinde olup genel bilgi amaçlıdır. Resmi makamlara sunmadan veya hukuki işlemde kullanmadan önce mutlaka bir avukata danışınız. HukukAI bu belgenin kullanımından doğabilecek hukuki sonuçlardan sorumlu değildir.",
+    "Bu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğindedir. Resmi kullanım öncesi avukata danışınız. HukukAI hukuki sorumluluk üstlenmez.",
     "---",
   ];
   return lines.join("\n");
