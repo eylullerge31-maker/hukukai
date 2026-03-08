@@ -1,0 +1,45 @@
+# Bağımlılıklar
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+dist/
+
+# Ortam değişkenleri (gizli anahtarlar)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Veritabanı
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
+
+# Debug / log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
+
+# Test
+coverage/
+.nyc_output/

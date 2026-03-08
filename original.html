@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HukukAI — Yapay Zeka Destekli Hukuki Danışmanlık</title>
+<meta name="description" content="7/24 hukuki danışmanlık, dilekçe oluşturma ve kanun rehberi."/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:       #08090f;
+  --bg2:      #0d0f18;
+  --bg3:      #111420;
+  --surface:  #161927;
+  --surface2: #1c2133;
+  --gold:     #c8a96e;
+  --gold-lt:  #e2c99a;
+  --gold-dk:  #9a7a44;
+  --gold-dim: rgba(200,169,110,.12);
+  --gold-glow:rgba(200,169,110,.22);
+  --line:     rgba(200,169,110,.13);
+  --line2:    rgba(200,169,110,.28);
+  --txt:      #e8eaf2;
+  --txt2:     #7d8aab;
+  --txt3:     #3e4a65;
+  --ok:       #2db87a;
+  --err:      #e05252;
+  --warn:     #d4930a;
+  --r:        14px;
+  --r-sm:     8px;
+  --r-pill:   999px;
+  --ease:     .22s cubic-bezier(.4,0,.2,1);
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden;line-height:1.65;-webkit-font-smoothing:antialiased}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--gold-dk);border-radius:2px}
+
+/* progress bar */
+#bar{position:fixed;top:0;left:0;height:1px;background:var(--gold);z-index:9999;width:0%;transition:width .08s linear}
+
+/* ─── TYPE ─── */
+h1,h2,h3,.serif{font-family:'Libre Baskerville',serif}
+h1{font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:700;line-height:1.1;letter-spacing:-.02em}
+h2{font-size:clamp(1.8rem,3.5vw,2.9rem);font-weight:700;line-height:1.15;letter-spacing:-.02em}
+h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;letter-spacing:0}
+em.hl{font-style:normal;color:var(--gold)}
+
+/* ─── LAYOUT ─── */
+section{padding:96px 6%}
+.wrap{max-width:1180px;margin:0 auto}
+.tc{text-align:center}
+.tc .sub{margin:0 auto}
+
+/* ─── TAG ─── */
+.tag{display:inline-flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--line2);color:var(--gold);padding:5px 14px;border-radius:var(--r-pill);font-size:11.5px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:18px}
+.tag-dot{width:5px;height:5px;background:var(--gold);border-radius:50%}
+
+/* ─── SUBTITLE ─── */
+.sub{font-size:1rem;color:var(--txt2);line-height:1.75;max-width:560px;margin-top:14px}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:12px 26px;border-radius:var(--r-pill);font-family:'Outfit',sans-serif;font-weight:600;font-size:14.5px;cursor:pointer;transition:all var(--ease);border:none;text-decoration:none;white-space:nowrap;letter-spacing:.01em}
+.btn-primary{background:var(--gold);color:#08090f;box-shadow:0 2px 16px rgba(200,169,110,.28)}
+.btn-primary:hover{background:var(--gold-lt);box-shadow:0 4px 24px rgba(200,169,110,.42);transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--gold);border:1.5px solid var(--line2)}
+.btn-secondary:hover{border-color:var(--gold);background:var(--gold-dim)}
+.btn-ghost{background:transparent;color:var(--txt2);border:1.5px solid rgba(255,255,255,.08)}
+.btn-ghost:hover{border-color:var(--line2);color:var(--txt)}
+.btn-sm{padding:9px 18px;font-size:13px}
+.btn-lg{padding:15px 34px;font-size:15.5px}
+.btn-block{width:100%;justify-content:center}
+.btn[disabled]{opacity:.45;cursor:not-allowed;pointer-events:none}
+
+/* ─── NAVBAR ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:66px;padding:0 6%;display:flex;align-items:center;justify-content:space-between;transition:all var(--ease);border-bottom:1px solid transparent}
+nav.on{background:rgba(8,9,15,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-color:var(--line)}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo-mark{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--gold);border-radius:7px;color:#08090f}
+.logo-mark svg{width:17px;height:17px}
+.logo-name{font-family:'Libre Baskerville',serif;font-size:1.35rem;font-weight:700;color:var(--gold);letter-spacing:-.01em}
+.nl{display:flex;align-items:center;gap:32px}
+.nl a{text-decoration:none;color:var(--txt2);font-size:14.5px;font-weight:500;transition:color var(--ease)}
+.nl a:hover{color:var(--txt)}
+.nr{display:flex;align-items:center;gap:10px}
+
+/* avatar */
+.av-wrap{position:relative}
+.av{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#08090f;cursor:pointer}
+.av-badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:var(--err);border-radius:50%;font-size:8px;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);color:#fff}
+.dd{position:absolute;top:46px;right:0;background:var(--surface2);border:1px solid var(--line2);border-radius:var(--r);padding:6px;min-width:200px;display:none;box-shadow:0 16px 48px rgba(0,0,0,.6)}
+.dd.show{display:block}
+.dd-head{padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.dd-name{font-weight:600;font-size:14px}
+.dd-plan{font-size:11px;color:var(--gold);margin-top:2px}
+.dd a,.dd button{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r-sm);color:var(--txt2);font-size:13.5px;text-decoration:none;background:none;border:none;cursor:pointer;width:100%;font-family:'Outfit',sans-serif;transition:all var(--ease)}
+.dd a:hover,.dd button:hover{background:var(--surface);color:var(--txt)}
+.dd-sep{height:1px;background:var(--line);margin:5px 0}
+.dd-danger{color:var(--err)!important}
+
+/* hamburger */
+.hbg{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:5px;background:none;border:none}
+.hbg span{width:22px;height:1.5px;background:var(--txt);border-radius:1px;transition:all .3s;display:block}
+.mob-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(8,9,15,.98);backdrop-filter:blur(24px);padding:20px 6%;border-bottom:1px solid var(--line);z-index:999}
+.mob-menu.show{display:block}
+.mob-menu a{display:block;padding:13px 0;color:var(--txt2);text-decoration:none;font-size:15px;border-bottom:1px solid var(--line)}
+.mob-btns{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+
+/* ─── HERO ─── */
+#hero{min-height:100vh;padding-top:66px;display:flex;align-items:center;position:relative;overflow:hidden}
+
+/* refined bg: subtle grid + radial glow */
+.hero-canvas{position:absolute;inset:0;pointer-events:none}
+.hero-canvas::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 80%)
+}
+.hero-canvas::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 62% 38%,rgba(200,169,110,.07) 0%,transparent 65%)
+}
+
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;position:relative;z-index:1;max-width:1180px;margin:0 auto;width:100%}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--line2);color:var(--gold-lt);padding:6px 16px;border-radius:var(--r-pill);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:22px}
+.pulse{width:7px;height:7px;background:var(--ok);border-radius:50%;animation:p 2.2s infinite}
+@keyframes p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.hero-title{margin-bottom:18px}
+.hero-lead{font-size:1.05rem;color:var(--txt2);line-height:1.8;margin-bottom:34px;max-width:490px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:52px}
+.hero-nums{display:flex;gap:36px;flex-wrap:wrap}
+.hn-num{font-family:'Libre Baskerville',serif;font-size:1.85rem;font-weight:700;color:var(--gold);line-height:1}
+.hn-lbl{font-size:11.5px;color:var(--txt3);margin-top:5px;letter-spacing:.04em}
+
+/* chat card */
+.chat-card{background:var(--surface);border:1px solid var(--line2);border-radius:18px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,.55),0 0 0 1px rgba(200,169,110,.06);animation:fl 5s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.cc-top{background:var(--surface2);padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.cc-av{width:30px;height:30px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#08090f}
+.cc-av svg{width:14px;height:14px}
+.cc-title{font-size:13.5px;font-weight:600}
+.cc-status{font-size:11px;color:var(--ok);display:flex;align-items:center;gap:4px}
+.cc-status::before{content:'';width:5px;height:5px;background:var(--ok);border-radius:50%;display:inline-block}
+.cc-msgs{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.bubble-ai{background:var(--surface2);border:1px solid var(--line);border-radius:3px 12px 12px 12px;padding:10px 13px;font-size:12.5px;line-height:1.55;max-width:85%;color:var(--txt)}
+.bubble-user{background:var(--gold);color:#08090f;border-radius:12px 3px 12px 12px;padding:10px 13px;font-size:12.5px;max-width:85%;margin-left:auto;font-weight:500;line-height:1.5}
+.cc-input{padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.cc-fake-input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-pill);padding:9px 14px;font-size:11.5px;color:var(--txt3);font-family:'Outfit',sans-serif}
+.cc-send{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#08090f;flex-shrink:0}
+.cc-send svg{width:13px;height:13px}
+
+/* trust chip */
+.trust-chip{position:absolute;bottom:-16px;right:-16px;background:var(--surface2);border:1px solid var(--line2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.tc-icon{width:30px;height:30px;background:rgba(45,184,122,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ok)}
+.tc-icon svg{width:14px;height:14px}
+.tc-txt{font-size:12px;font-weight:600;line-height:1.3}
+.tc-sub{font-size:10.5px;color:var(--txt3)}
+
+/* ─── FEATURES ─── */
+#features{background:var(--bg2)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:56px}
+.feat-cell{background:var(--bg2);padding:32px 28px;transition:background var(--ease)}
+.feat-cell:hover{background:var(--surface)}
+.feat-ico{width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--gold);margin-bottom:16px;opacity:.9}
+.feat-ico svg{width:22px;height:22px;stroke-width:1.5}
+.feat-name{font-weight:600;font-size:15px;margin-bottom:8px;color:var(--txt)}
+.feat-desc{font-size:13.5px;color:var(--txt2);line-height:1.65}
+
+/* ─── CHAT APP ─── */
+#chat-section{background:var(--bg)}
+.chat-layout{display:grid;grid-template-columns:1fr 320px;gap:28px;margin-top:52px;align-items:start}
+.chat-win{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.cw-top{background:var(--surface2);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.cw-left{display:flex;align-items:center;gap:10px}
+.cw-av{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#08090f}
+.cw-av svg{width:14px;height:14px}
+.cw-name{font-weight:600;font-size:14.5px}
+.cw-stat{font-size:11px;color:var(--ok)}
+.cw-acts{display:flex;gap:5px}
+.ico-btn{width:32px;height:32px;background:transparent;border:1px solid var(--line);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--txt3);cursor:pointer;transition:all var(--ease);font-family:'Outfit',sans-serif}
+.ico-btn svg{width:14px;height:14px}
+.ico-btn:hover{border-color:var(--line2);color:var(--gold)}
+.cw-msgs{padding:18px;display:flex;flex-direction:column;gap:14px;min-height:380px;max-height:440px;overflow-y:auto}
+.cw-msgs::-webkit-scrollbar{width:3px}
+.cw-msgs::-webkit-scrollbar-thumb{background:var(--line2)}
+.msg-ai-row{display:flex;gap:9px;align-items:flex-start}
+.msg-av{width:28px;height:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#08090f;flex-shrink:0;margin-top:2px}
+.msg-av svg{width:12px;height:12px}
+.msg-body{flex:1}
+.ai-bub{background:var(--surface2);border:1px solid var(--line);border-radius:3px 13px 13px 13px;padding:11px 14px;font-size:13.5px;line-height:1.65;color:var(--txt)}
+.ai-bub strong{color:var(--gold-lt)}
+.ai-bub-warn{font-size:11.5px;color:var(--txt3);margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-style:italic}
+.ai-acts{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.ai-act{background:none;border:1px solid var(--line);color:var(--txt3);padding:3px 9px;border-radius:var(--r-pill);font-size:11px;cursor:pointer;transition:all var(--ease);font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:4px}
+.ai-act svg{width:11px;height:11px}
+.ai-act:hover{border-color:var(--line2);color:var(--gold)}
+.msg-time{font-size:10px;color:var(--txt3);margin-top:3px}
+.usr-bub-wrap{display:flex;justify-content:flex-end}
+.usr-bub{background:var(--gold);color:#08090f;border-radius:13px 3px 13px 13px;padding:11px 14px;font-size:13.5px;max-width:78%;font-weight:500;line-height:1.55}
+.typing-row{display:flex;align-items:center;gap:5px}
+.dots{display:flex;gap:3px}
+.dots span{width:6px;height:6px;background:var(--txt3);border-radius:50%;animation:td 1.3s infinite}
+.dots span:nth-child(2){animation-delay:.18s}
+.dots span:nth-child(3){animation-delay:.36s}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
+.chips{padding:0 18px 14px;display:flex;gap:7px;flex-wrap:wrap}
+.chip{background:var(--gold-dim);border:1px solid var(--line);color:var(--txt2);padding:7px 13px;border-radius:var(--r-pill);font-size:12px;cursor:pointer;transition:all var(--ease)}
+.chip:hover{border-color:var(--line2);color:var(--gold-lt)}
+.cw-in{padding:14px 18px;border-top:1px solid var(--line);background:var(--surface)}
+.in-row{display:flex;gap:9px;align-items:flex-end}
+.chat-ta{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:11px 15px;font-size:13.5px;color:var(--txt);font-family:'Outfit',sans-serif;resize:none;min-height:46px;max-height:110px;outline:none;transition:border-color var(--ease);line-height:1.5}
+.chat-ta:focus{border-color:var(--line2)}
+.chat-ta::placeholder{color:var(--txt3)}
+.send-btn{width:44px;height:44px;background:var(--gold);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#08090f;cursor:pointer;transition:all var(--ease);flex-shrink:0}
+.send-btn svg{width:16px;height:16px}
+.send-btn:hover{background:var(--gold-lt);transform:scale(1.05)}
+.send-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.in-note{font-size:11px;color:var(--txt3);text-align:center;margin-top:8px}
+
+/* sidebar */
+.sb{display:flex;flex-direction:column;gap:16px}
+.sb-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.sb-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--txt);display:flex;align-items:center;gap:7px}
+.sb-title svg{width:14px;height:14px;color:var(--gold)}
+.sr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px}
+.sr-l{color:var(--txt2)}
+.sr-v{font-weight:600}
+.tp-item{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.tp-lbl{font-size:12.5px;color:var(--txt2);width:110px;flex-shrink:0}
+.tp-bar{flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.tp-fill{height:100%;background:linear-gradient(90deg,var(--gold-dk),var(--gold));border-radius:2px}
+.tp-pct{font-size:11.5px;color:var(--txt3);width:28px;text-align:right}
+.up-card{background:linear-gradient(135deg,rgba(200,169,110,.1),rgba(200,169,110,.04));border:1px solid var(--line2);border-radius:var(--r);padding:20px}
+.up-title{font-family:'Libre Baskerville',serif;font-size:1.05rem;font-weight:700;margin-bottom:7px}
+.up-desc{font-size:13px;color:var(--txt2);margin-bottom:14px;line-height:1.55}
+
+/* ─── DOC GENERATOR ─── */
+#docs{background:var(--bg2)}
+.doc-layout{display:grid;grid-template-columns:1fr 1fr;gap:44px;margin-top:52px;align-items:start}
+.d-steps{display:flex;align-items:center;gap:6px;margin-bottom:24px}
+.d-step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--txt3);letter-spacing:.04em;text-transform:uppercase}
+.d-step.act{color:var(--gold)}
+.d-step.done{color:var(--ok)}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.d-step.done .sn{background:var(--ok);border-color:var(--ok);color:#fff}
+.d-step.act .sn{background:rgba(200,169,110,.14)}
+.d-div{flex:1;height:1px;background:var(--line);max-width:24px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.type-btn{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:14px;text-align:left;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;gap:11px;width:100%}
+.type-btn:hover{border-color:var(--line2)}
+.type-btn.sel{border-color:var(--gold);background:var(--gold-dim)}
+.type-ico{width:34px;height:34px;background:var(--gold-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0}
+.type-ico svg{width:16px;height:16px;stroke-width:1.5}
+.type-name{font-size:13px;font-weight:600;color:var(--txt)}
+.type-desc{font-size:11px;color:var(--txt3);margin-top:2px}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:12.5px;font-weight:500;color:var(--txt2);margin-bottom:5px}
+.fl-req{color:var(--err)}
+.fi,.fs,.fta{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 13px;font-size:13.5px;color:var(--txt);font-family:'Outfit',sans-serif;outline:none;transition:border-color var(--ease)}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--line2)}
+.fi::placeholder,.fta::placeholder{color:var(--txt3)}
+.fs{cursor:pointer}.fs option{background:var(--surface2)}
+.fta{resize:vertical;min-height:80px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc-prev{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:24px;min-height:480px;display:flex;flex-direction:column}
+.dp-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+.dp-title{font-size:13px;font-weight:600;color:var(--txt)}
+.dp-acts{display:flex;gap:5px}
+.dp-ph{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--txt3);text-align:center;gap:10px;min-height:380px}
+.dp-ph svg{width:36px;height:36px;opacity:.2}
+.dp-ph p{font-size:13px;line-height:1.6}
+.dp-gen{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--txt2);min-height:380px}
+.spin{width:32px;height:32px;border:2.5px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.dp-content{font-size:12.5px;line-height:1.85;color:var(--txt2);white-space:pre-wrap;font-family:'Outfit',sans-serif;display:none;flex:1}
+.dp-dl{display:none;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* ─── STATS ─── */
+.stats-strip{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:52px 6%}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;max-width:900px;margin:0 auto;text-align:center}
+.st-num{font-family:'Libre Baskerville',serif;font-size:2.5rem;font-weight:700;color:var(--gold)}
+.st-lbl{font-size:12.5px;color:var(--txt3);margin-top:4px;letter-spacing:.04em}
+
+/* ─── PRICING ─── */
+#pricing{background:var(--bg)}
+.bill-row{display:flex;align-items:center;gap:12px;justify-content:center;margin:24px 0 48px}
+.bill-lbl{font-size:14px;font-weight:500;color:var(--txt2)}
+.tog{width:48px;height:26px;background:var(--surface2);border-radius:13px;border:1px solid var(--line);cursor:pointer;position:relative;transition:all var(--ease)}
+.tog.on{background:rgba(200,169,110,.2);border-color:var(--line2)}
+.tog-k{position:absolute;top:3px;left:3px;width:18px;height:18px;background:var(--txt3);border-radius:50%;transition:all var(--ease)}
+.tog.on .tog-k{left:25px;background:var(--gold)}
+.save-tag{background:rgba(45,184,122,.12);color:var(--ok);border:1px solid rgba(45,184,122,.25);padding:3px 9px;border-radius:var(--r-pill);font-size:11.5px;font-weight:600}
+.p-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.p-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px;position:relative;transition:all var(--ease);display:flex;flex-direction:column}
+.p-card:hover{border-color:var(--line2);transform:translateY(-3px)}
+.p-card.feat{border-color:var(--gold);background:linear-gradient(160deg,rgba(200,169,110,.07),var(--surface));box-shadow:0 0 40px rgba(200,169,110,.08)}
+.p-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#08090f;padding:4px 14px;border-radius:var(--r-pill);font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.04em}
+.p-plan{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+.p-price{font-family:'Libre Baskerville',serif;font-size:2.6rem;font-weight:700;line-height:1;margin-bottom:4px}
+.p-price sup{font-size:1rem;font-weight:400}
+.p-price span{font-size:.9rem;font-weight:400;color:var(--txt3)}
+.p-old{font-size:.85rem;text-decoration:line-through;color:var(--txt3);margin-left:5px}
+.p-per{font-size:12px;color:var(--txt3);margin-bottom:8px}
+.p-desc{font-size:13px;color:var(--txt2);margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--line);line-height:1.6;flex:0}
+.p-feats{display:flex;flex-direction:column;gap:9px;margin-bottom:22px;flex:1}
+.pf{display:flex;align-items:flex-start;gap:8px;font-size:13px}
+.pf svg{width:13px;height:13px;flex-shrink:0;margin-top:2px}
+.pf.yes svg{color:var(--ok)}
+.pf.no{color:var(--txt3)}
+.pf.no svg{color:var(--txt3)}
+
+/* ─── TESTIMONIALS ─── */
+#testimonials{background:var(--bg2)}
+.test-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:52px}
+.test-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:all var(--ease);border-left:2px solid var(--gold)}
+.test-card:hover{border-color:var(--line2);border-left-color:var(--gold)}
+.test-stars{display:flex;gap:2px;margin-bottom:14px}
+.star{width:13px;height:13px;color:var(--gold)}
+.test-q{font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:18px;font-style:italic}
+.test-auth{display:flex;align-items:center;gap:11px}
+.test-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.test-name{font-weight:600;font-size:13.5px}
+.test-role{font-size:11.5px;color:var(--txt3);margin-top:1px}
+
+/* ─── FAQ ─── */
+#faq{background:var(--bg)}
+.faq-wrap{max-width:720px;margin:52px auto 0;display:flex;flex-direction:column;gap:8px}
+.faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color var(--ease)}
+.faq-item.open{border-color:var(--line2)}
+.faq-q{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:500;font-size:14.5px;gap:12px}
+.faq-ico{width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0;transition:transform var(--ease)}
+.faq-ico svg{width:14px;height:14px}
+.faq-item.open .faq-ico{transform:rotate(45deg)}
+.faq-a{padding:0 22px;max-height:0;overflow:hidden;transition:max-height .38s ease,padding .28s;font-size:13.5px;color:var(--txt2);line-height:1.7}
+.faq-item.open .faq-a{max-height:260px;padding:0 22px 18px}
+
+/* ─── CTA STRIP ─── */
+#cta-strip{background:linear-gradient(135deg,rgba(200,169,110,.07) 0%,rgba(200,169,110,.03) 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cta-inner{max-width:580px;margin:0 auto;text-align:center}
+.cta-inner h2{margin-bottom:14px}
+.cta-inner p{font-size:1rem;color:var(--txt2);margin-bottom:30px;line-height:1.7}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ─── FOOTER ─── */
+footer{background:var(--bg2);border-top:1px solid var(--line);padding:64px 6% 28px}
+.ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:44px}
+.ft-brand .logo{margin-bottom:14px;display:inline-flex}
+.ft-desc{font-size:13.5px;color:var(--txt3);line-height:1.7;margin-bottom:18px}
+.ft-soc{display:flex;gap:8px}
+.fsoc{width:34px;height:34px;background:var(--surface);border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--txt3);text-decoration:none;transition:all var(--ease)}
+.fsoc svg{width:15px;height:15px}
+.fsoc:hover{border-color:var(--line2);color:var(--gold)}
+.ft-col h4{font-size:12.5px;font-weight:700;color:var(--txt);margin-bottom:14px;letter-spacing:.08em;text-transform:uppercase}
+.ft-col a{display:block;font-size:13.5px;color:var(--txt3);text-decoration:none;margin-bottom:9px;transition:color var(--ease)}
+.ft-col a:hover{color:var(--gold)}
+.ft-bot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding-top:24px;border-top:1px solid var(--line)}
+.ft-copy{font-size:12.5px;color:var(--txt3)}
+.ft-disc{font-size:12px;color:var(--txt3);display:flex;align-items:flex-start;gap:5px;max-width:480px;line-height:1.5}
+.warn-ico{color:var(--warn);flex-shrink:0;margin-top:1px}
+.warn-ico svg{width:13px;height:13px}
+
+/* ─── MODALS ─── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.modal{background:var(--surface2);border:1px solid var(--line2);border-radius:20px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;animation:mi .28s cubic-bezier(.34,1.56,.64,1)}
+.modal-w{max-width:540px}
+@keyframes mi{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+.mh{padding:22px 26px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.mh-title{font-family:'Libre Baskerville',serif;font-size:1.35rem;font-weight:700}
+.mc-btn{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--txt2);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);font-size:16px;font-family:'Outfit',sans-serif}
+.mc-btn:hover{border-color:var(--line2);color:var(--txt)}
+.msub{padding:0 26px;font-size:13.5px;color:var(--txt3);margin-bottom:22px}
+.mb{padding:0 26px 26px}
+.soc-btns{display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
+.soc-btn{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px;border-radius:var(--r-sm);font-size:13.5px;font-weight:500;cursor:pointer;transition:all var(--ease);font-family:'Outfit',sans-serif;border:1.5px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt)}
+.soc-btn:hover{border-color:var(--line2);background:rgba(255,255,255,.05)}
+.soc-btn svg{width:16px;height:16px}
+.or-div{display:flex;align-items:center;gap:10px;margin:18px 0;font-size:12.5px;color:var(--txt3)}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--line)}
+.iw{position:relative;margin-bottom:13px}
+.iw-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--txt3)}
+.iw-icon svg{width:15px;height:15px}
+.iw .fi{padding-left:40px}
+.pw-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt3);cursor:pointer;display:flex;align-items:center}
+.pw-eye svg{width:15px;height:15px}
+.pw-eye:hover{color:var(--txt)}
+.rem-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px}
+.rem-l{display:flex;align-items:center;gap:7px;color:var(--txt2)}
+.rem-l input{accent-color:var(--gold)}
+.fl-link{color:var(--gold);text-decoration:none;font-size:13px}
+.auth-sw{text-align:center;font-size:13px;color:var(--txt3);margin-top:16px}
+.auth-sw a{color:var(--gold);text-decoration:none;font-weight:500}
+.plan-tabs{display:flex;gap:5px;margin-bottom:18px;background:var(--surface);border-radius:var(--r-sm);padding:4px}
+.pt{flex:1;text-align:center;padding:9px 5px;border-radius:7px;font-size:12.5px;font-weight:500;cursor:pointer;transition:all var(--ease);color:var(--txt3);border:none;background:none;font-family:'Outfit',sans-serif}
+.pt.act{background:var(--gold);color:#08090f;font-weight:700}
+.pw-bars{display:flex;gap:3px;margin-top:6px}
+.pw-bar{flex:1;height:3px;background:var(--line);border-radius:2px;transition:background .3s}
+.pw-bar.w{background:var(--err)}.pw-bar.f{background:var(--warn)}.pw-bar.g{background:#3b82f6}.pw-bar.s{background:var(--ok)}
+.pw-lbl{font-size:11px;margin-top:4px;color:var(--txt3)}
+.cb-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:11px;font-size:13px;color:var(--txt2)}
+.cb-row input{margin-top:2px;accent-color:var(--gold);flex-shrink:0}
+.cb-row a{color:var(--gold);text-decoration:none}
+.suc-state{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 0}
+.suc-ico{width:58px;height:58px;background:rgba(45,184,122,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ok);margin-bottom:14px;animation:bi .45s ease}
+.suc-ico svg{width:26px;height:26px}
+@keyframes bi{from{transform:scale(.4);opacity:0}70%{transform:scale(1.1)}to{transform:scale(1);opacity:1}}
+.suc-title{font-family:'Libre Baskerville',serif;font-size:1.35rem;font-weight:700;margin-bottom:7px}
+.suc-desc{font-size:13.5px;color:var(--txt2);line-height:1.65}
+/* payment */
+.ord-sum{background:var(--gold-dim);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px;margin-bottom:18px}
+.or{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}
+.or:last-child{margin-bottom:0;padding-top:7px;border-top:1px solid var(--line);font-weight:700;font-size:13.5px;color:var(--gold)}
+.pay-tabs{display:flex;gap:5px;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:0}
+.pay-t{padding:9px 12px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all var(--ease);color:var(--txt3);background:none;border-top:none;border-left:none;border-right:none;font-family:'Outfit',sans-serif;margin-bottom:-1px}
+.pay-t.act{color:var(--gold);border-bottom-color:var(--gold)}
+.card-logos{display:flex;gap:5px;margin-top:5px}
+.cl{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:4px;padding:2px 7px;font-size:10.5px;color:var(--txt3)}
+.cl.hi{border-color:var(--gold);color:var(--gold)}
+.coup-row{display:flex;gap:7px}
+.coup-row .fi{flex:1}
+.tr-info{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px;font-size:13px;line-height:1.7;color:var(--txt2)}
+.tr-info strong{color:var(--txt)}
+.pay-sec{font-size:11px;color:var(--txt3);text-align:center;margin-top:13px}
+/* settings */
+.set-tabs{display:flex;gap:5px;margin-bottom:22px;border-bottom:1px solid var(--line);padding-bottom:0}
+/* contact, legal same as modal */
+
+/* ─── TOAST ─── */
+.t-wrap{position:fixed;top:76px;right:18px;z-index:5000;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--surface2);border:1px solid var(--line2);border-radius:var(--r-sm);padding:11px 14px;display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--txt);min-width:270px;max-width:340px;animation:tin .25s ease;pointer-events:all;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.toast.out{animation:tout .25s ease forwards}
+@keyframes tin{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(16px)}}
+.t-ico{flex-shrink:0}.t-ico svg{width:15px;height:15px}
+.t-msg{flex:1}
+.t-close{background:none;border:none;color:var(--txt3);cursor:pointer;display:flex;padding:2px}
+.t-close svg{width:13px;height:13px}
+.toast.ok .t-ico{color:var(--ok)}
+.toast.er .t-ico{color:var(--err)}
+.toast.inf .t-ico{color:var(--gold)}
+.toast.wn .t-ico{color:var(--warn)}
+
+/* ─── SCROLL ANIM ─── */
+.fu{opacity:0;transform:translateY(28px);transition:opacity .55s ease,transform .55s ease}
+.fu.vis{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}.d5{transition-delay:.5s}.d6{transition-delay:.6s}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px){
+  .p-grid{grid-template-columns:repeat(2,1fr)}
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .chat-layout{grid-template-columns:1fr}
+  .sb{display:grid;grid-template-columns:1fr 1fr}
+  .doc-layout{grid-template-columns:1fr}
+  .ft-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  section{padding:70px 5%}
+  .hero-inner{grid-template-columns:1fr;gap:44px}
+  .hero-visual{display:none}
+  .feat-grid{grid-template-columns:1fr}
+  .test-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .nl{display:none}
+  .nr .btn{display:none}
+  .hbg{display:flex}
+  .p-grid{grid-template-columns:1fr}
+  .sb{grid-template-columns:1fr}
+  .ft-grid{grid-template-columns:1fr}
+  .ft-bot{flex-direction:column;text-align:center}
+  .fr{grid-template-columns:1fr}
+  .type-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- progress -->
+<div id="bar"></div>
+<!-- toasts -->
+<div class="t-wrap" id="toasts"></div>
+
+<!-- ══════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════ -->
+<nav id="nav">
+  <a href="#" class="logo">
+    <div class="logo-mark">
+      <!-- scale / balance icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/>
+      </svg>
+    </div>
+    <span class="logo-name">HukukAI</span>
+  </a>
+
+  <div class="nl">
+    <a href="#features">Özellikler</a>
+    <a href="#chat-section">AI Asistan</a>
+    <a href="#docs">Dilekçe</a>
+    <a href="#pricing">Fiyatlandırma</a>
+    <a href="#faq">SSS</a>
+  </div>
+
+  <div class="nr">
+    <div id="navGuest" style="display:flex;gap:9px">
+      <button class="btn btn-ghost btn-sm" onclick="openM('loginModal')">Giriş Yap</button>
+      <button class="btn btn-primary btn-sm" onclick="openM('regModal')">Başlayın</button>
+    </div>
+    <div id="navUser" style="display:none;align-items:center;gap:9px" class="nav-user">
+      <div class="av-wrap">
+        <div class="av" id="navAv" onclick="togDD()"><span id="navInit">AY</span>
+          <div class="av-badge">2</div>
+        </div>
+        <div class="dd" id="navDD">
+          <div class="dd-head">
+            <div class="dd-name" id="ddName">Ahmet Yılmaz</div>
+            <div class="dd-plan" id="ddPlan">· Ücretsiz Plan</div>
+          </div>
+          <a href="#">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Profilim</a>
+          <a href="#">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Belgelerim</a>
+          <a href="#">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Sohbet Geçmişim</a>
+          <a href="#" onclick="openM('setModal')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Ayarlar</a>
+          <a href="#pricing">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Aboneliğim</a>
+          <div class="dd-sep"></div>
+          <button class="dd-danger" onclick="doLogout()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            Çıkış Yap</button>
+        </div>
+      </div>
+    </div>
+    <button class="hbg" onclick="togMob()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- mobile menu -->
+<div class="mob-menu" id="mobMenu">
+  <a href="#features" onclick="closeMob()">Özellikler</a>
+  <a href="#chat-section" onclick="closeMob()">AI Asistan</a>
+  <a href="#docs" onclick="closeMob()">Dilekçe</a>
+  <a href="#pricing" onclick="closeMob()">Fiyatlandırma</a>
+  <a href="#faq" onclick="closeMob()">SSS</a>
+  <div class="mob-btns">
+    <button class="btn btn-ghost btn-block" onclick="openM('loginModal');closeMob()">Giriş Yap</button>
+    <button class="btn btn-primary btn-block" onclick="openM('regModal');closeMob()">Başlayın</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-canvas"></div>
+  <div class="hero-inner wrap">
+    <!-- left -->
+    <div>
+      <div class="hero-eyebrow"><span class="pulse"></span> Türkiye'nin Hukuki AI Platformu</div>
+      <h1 class="hero-title">Hukuki Danışmanlık,<br><em class="hl">Anında ve Doğru</em></h1>
+      <p class="hero-lead">Yapay zeka destekli hukuki danışmanlık platformumuzla haklarınızı öğrenin, belgelerinizi oluşturun, mevzuata kolayca erişin.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'})">Hemen Başlayın</button>
+        <button class="btn btn-secondary btn-lg" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Planları İnceleyin</button>
+      </div>
+      <div class="hero-nums">
+        <div><div class="hn-num" data-count="10247">0</div><div class="hn-lbl">Kullanıcı</div></div>
+        <div><div class="hn-num" data-count="52891">0</div><div class="hn-lbl">Yanıt Verildi</div></div>
+        <div><div class="hn-num" data-count="8432">0</div><div class="hn-lbl">Dilekçe Oluşturuldu</div></div>
+      </div>
+    </div>
+    <!-- right: chat preview -->
+    <div class="hero-visual" style="position:relative">
+      <div class="chat-card">
+        <div class="cc-top">
+          <div class="cc-av">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg>
+          </div>
+          <div>
+            <div class="cc-title">HukukAI Danışmanı</div>
+            <div class="cc-status">Çevrimiçi</div>
+          </div>
+        </div>
+        <div class="cc-msgs">
+          <div class="bubble-ai">Merhaba, hukuki konularda size nasıl yardımcı olabilirim?</div>
+          <div class="bubble-user">İşten çıkarıldım. Kıdem tazminatı hakkım var mı?</div>
+          <div class="bubble-ai">İş Kanunu Madde 14 kapsamında, <strong>en az 1 yıl</strong> çalışmış olmanız durumunda kıdem tazminatı hakkınız doğmaktadır. Her yıl için 30 günlük brüt ücret esas alınır...</div>
+        </div>
+        <div class="cc-input">
+          <div class="cc-fake-input">Sorunuzu yazın...</div>
+          <div class="cc-send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="trust-chip">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div class="tc-txt">KVKK Uyumlu</div>
+          <div class="tc-sub">AES-256 Şifreleme</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- stats strip -->
+<div class="stats-strip">
+  <div class="stats-row wrap">
+    <div class="fu d1"><div class="st-num" data-count="10247">0</div><div class="st-lbl">Aktif Kullanıcı</div></div>
+    <div class="fu d2"><div class="st-num" data-count="52891">0</div><div class="st-lbl">Yanıtlanan Soru</div></div>
+    <div class="fu d3"><div class="st-num" data-count="8432">0</div><div class="st-lbl">Oluşturulan Dilekçe</div></div>
+    <div class="fu d4"><div class="st-num">%98</div><div class="st-lbl">Memnuniyet</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FEATURES
+══════════════════════════════════════════ -->
+<section id="features">
+  <div class="wrap">
+    <div class="tc fu">
+      <div class="tag"><span class="tag-dot"></span>Özellikler</div>
+      <h2>Kapsamlı Hukuki<br><em class="hl">Danışmanlık Araçları</em></h2>
+      <p class="sub">Türk hukukunun tüm alanlarında, 7/24 erişilebilir dijital danışmanlık hizmetleri.</p>
+    </div>
+    <div class="feat-grid fu">
+      <div class="feat-cell">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="feat-name">7/24 Hukuki Danışmanlık</div>
+        <p class="feat-desc">İş, aile, kira, ceza ve borçlar hukuku dahil tüm alanlarda anlık hukuki bilgi alın. Her sorunuza kapsamlı, anlaşılır yanıtlar.</p>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="feat-name">Dilekçe & Belge Oluşturma</div>
+        <p class="feat-desc">50'den fazla şablonla; iş mahkemesi, kira ihtarnamesi, tüketici şikayeti ve daha fazlasını saniyeler içinde oluşturun. Word ve PDF indirme.</p>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="feat-name">Kanun & Mevzuat Arama</div>
+        <p class="feat-desc">Türk hukukunun tüm kanunlarında anında arama. Karmaşık hukuki metinleri yapay zeka ile sade Türkçeye çevirin.</p>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="feat-name">Sözleşme & Risk Analizi</div>
+        <p class="feat-desc">Belgelerinizi yükleyin; yapay zeka olası riskleri, eksik maddeleri ve iyileştirme önerilerini kapsamlı raporla sunar.</p>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="feat-name">Dava & Süreç Takibi</div>
+        <p class="feat-desc">Hukuki süreçlerinizin durumunu izleyin, önemli tarihleri ve duruşmaları kaçırmayın. Belge ve notlarınızı güvenle saklayın.</p>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="feat-name">Çoklu Platform Erişimi</div>
+        <p class="feat-desc">Web, mobil uygulama ve API üzerinden erişin. Sohbet geçmişiniz, belgeleriniz ve dosyalarınız tüm cihazlarınızda senkronize.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     AI CHAT
+══════════════════════════════════════════ -->
+<section id="chat-section">
+  <div class="wrap">
+    <div class="tc fu">
+      <div class="tag"><span class="tag-dot"></span>AI Asistan</div>
+      <h2>Hukuki Sorunuzu<br><em class="hl">Hemen Sorun</em></h2>
+      <p class="sub">OpenAI destekli hukuki danışmanlık asistanı. Gerçek API entegrasyonu ile anlık yanıtlar.</p>
+    </div>
+    <div class="chat-layout">
+      <!-- chat window -->
+      <div class="chat-win">
+        <div class="cw-top">
+          <div class="cw-left">
+            <div class="cw-av">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg>
+            </div>
+            <div>
+              <div class="cw-name">HukukAI Danışmanı</div>
+              <div class="cw-stat" id="chatStat">● Çevrimiçi</div>
+            </div>
+          </div>
+          <div class="cw-acts">
+            <button class="ico-btn" onclick="clearChat()" title="Temizle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </button>
+            <button class="ico-btn" onclick="copyChat()" title="Kopyala">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+            <button class="ico-btn" onclick="saveChat()" title="Kaydet">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cw-msgs" id="chatMsgs">
+          <div class="msg-ai-row">
+            <div class="msg-av">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg>
+            </div>
+            <div class="msg-body">
+              <div class="ai-bub">Merhaba, ben <strong>HukukAI Danışmanı</strong>. Türk hukuku konusunda size yardımcı olmak için buradayım.<br><br>İş hukuku, aile hukuku, kira sorunları, tüketici hakları ve diğer hukuki konularda sorularınızı yanıtlıyorum.</div>
+              <div class="msg-time">Şimdi</div>
+            </div>
+          </div>
+        </div>
+        <div class="chips" id="quickChips">
+          <button class="chip" onclick="sendQ('İşten çıkarıldım, kıdem tazminatı hakkım var mı?')">Kıdem tazminatı</button>
+          <button class="chip" onclick="sendQ('Kiracım kira ödemedi, ne yapabilirim?')">Kira ihtarnamesi</button>
+          <button class="chip" onclick="sendQ('Boşanma davası nasıl açılır?')">Boşanma davası</button>
+          <button class="chip" onclick="sendQ('Tüketici şikayeti nasıl yapılır?')">Tüketici şikayeti</button>
+          <button class="chip" onclick="sendQ('Trafik kazasında tazminat hakkım var mı?')">Trafik kazası</button>
+        </div>
+        <div class="cw-in">
+          <div class="in-row">
+            <textarea class="chat-ta" id="chatIn" placeholder="Hukuki sorunuzu yazın… (Enter = gönder)" rows="1" onkeydown="onKey(event)" oninput="grow(this)"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div class="in-note">Bu yanıtlar genel bilgi amaçlıdır; resmi hukuki tavsiye yerine geçmez.</div>
+        </div>
+      </div>
+      <!-- sidebar -->
+      <div class="sb">
+        <div class="sb-card">
+          <div class="sb-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Bu Ay
+          </div>
+          <div class="sr"><span class="sr-l">Yanıtlanan soru</span><span class="sr-v">247</span></div>
+          <div class="sr"><span class="sr-l">Oluşturulan belge</span><span class="sr-v">32</span></div>
+          <div class="sr"><span class="sr-l">Ortalama yanıt süresi</span><span class="sr-v" style="color:var(--ok)">2.1sn</span></div>
+        </div>
+        <div class="sb-card">
+          <div class="sb-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Popüler Konular
+          </div>
+          <div class="tp-item"><span class="tp-lbl">İş Hukuku</span><div class="tp-bar"><div class="tp-fill" style="width:72%"></div></div><span class="tp-pct">72%</span></div>
+          <div class="tp-item"><span class="tp-lbl">Aile Hukuku</span><div class="tp-bar"><div class="tp-fill" style="width:54%"></div></div><span class="tp-pct">54%</span></div>
+          <div class="tp-item"><span class="tp-lbl">Kira Hukuku</span><div class="tp-bar"><div class="tp-fill" style="width:42%"></div></div><span class="tp-pct">42%</span></div>
+          <div class="tp-item"><span class="tp-lbl">Tüketici</span><div class="tp-bar"><div class="tp-fill" style="width:35%"></div></div><span class="tp-pct">35%</span></div>
+          <div class="tp-item"><span class="tp-lbl">Ceza Hukuku</span><div class="tp-bar"><div class="tp-fill" style="width:28%"></div></div><span class="tp-pct">28%</span></div>
+        </div>
+        <div class="up-card" id="upCard">
+          <div class="up-title">Premium'a Geçin</div>
+          <div class="up-desc">Sınırsız sorgu, belge oluşturma, sözleşme analizi ve daha fazlası.</div>
+          <button class="btn btn-primary btn-block btn-sm" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Planları İnceleyin</button>
+        </div>
+        <div class="sb-card">
+          <div class="sb-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            İpucu
+          </div>
+          <p style="font-size:13px;color:var(--txt2);line-height:1.65">Sorunuzu ne kadar ayrıntılı yazarsanız, o kadar kapsamlı ve doğru yanıt alırsınız. Tarih, taraf bilgileri ve belge detaylarını belirtin.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     DOCUMENT GENERATOR
+══════════════════════════════════════════ -->
+<section id="docs">
+  <div class="wrap">
+    <div class="tc fu">
+      <div class="tag"><span class="tag-dot"></span>Dilekçe Oluşturucu</div>
+      <h2>Profesyonel Hukuki<br><em class="hl">Belgeler, Saniyeler İçinde</em></h2>
+      <p class="sub">Bilgilerinizi girin, yapay zeka resmi Türkçe dilekçenizi otomatik hazırlasın.</p>
+    </div>
+    <div class="doc-layout">
+      <!-- left: form -->
+      <div>
+        <div class="d-steps">
+          <div class="d-step act" id="ds1"><div class="sn">1</div><span>Tür Seç</span></div>
+          <div class="d-div"></div>
+          <div class="d-step" id="ds2"><div class="sn">2</div><span>Bilgileri Girin</span></div>
+          <div class="d-div"></div>
+          <div class="d-step" id="ds3"><div class="sn">3</div><span>İndir</span></div>
+        </div>
+
+        <!-- step 1 -->
+        <div id="docS1">
+          <p style="font-size:14px;color:var(--txt2);margin-bottom:16px">Oluşturmak istediğiniz belge türünü seçin:</p>
+          <div class="type-grid">
+            <button class="type-btn" onclick="selDocType('kira',this)">
+              <div class="type-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+              <div><div class="type-name">Kira İhtarnamesi</div><div class="type-desc">Kiracı / ev sahibi ihtarı</div></div>
+            </button>
+            <button class="type-btn" onclick="selDocType('is',this)">
+              <div class="type-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+              <div><div class="type-name">İş Mahkemesi Dilekçesi</div><div class="type-desc">Kıdem, ihbar, işe iade</div></div>
+            </button>
+            <button class="type-btn" onclick="selDocType('tuketici',this)">
+              <div class="type-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div>
+              <div><div class="type-name">Tüketici Şikayeti</div><div class="type-desc">Arıza, iade, tazminat</div></div>
+            </button>
+            <button class="type-btn" onclick="selDocType('borc',this)">
+              <div class="type-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+              <div><div class="type-name">Borç İhtarnamesi</div><div class="type-desc">Alacak / ödeme talebi</div></div>
+            </button>
+            <button class="type-btn" onclick="selDocType('bosanma',this)">
+              <div class="type-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg></div>
+              <div><div class="type-name">Boşanma Dilekçesi</div><div class="type-desc">Anlaşmalı / çekişmeli</div></div>
+            </button>
+            <button class="type-btn" onclick="selDocType('miras',this)">
+              <div class="type-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+              <div><div class="type-name">Miras & Veraset</div><div class="type-desc">Miras talebi, intikal</div></div>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-block" id="docNextBtn" disabled onclick="goStep2()">Devam Edin</button>
+        </div>
+
+        <!-- step 2 -->
+        <div id="docS2" style="display:none">
+          <h3 style="margin-bottom:18px" id="docFormTitle">Bilgileri Girin</h3>
+          <div id="docForm"></div>
+          <div style="display:flex;gap:9px;margin-top:6px">
+            <button class="btn btn-ghost btn-sm" onclick="goStep1()">← Geri</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="genDoc()">Belgeyi Oluştur</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: preview -->
+      <div class="doc-prev">
+        <div class="dp-hd">
+          <span class="dp-title">Belge Önizlemesi</span>
+          <div class="dp-acts">
+            <button class="ico-btn" id="cpyDocBtn" onclick="cpyDoc()" style="display:none" title="Kopyala">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+            <button class="ico-btn" id="dlDocBtn" onclick="dlDoc()" style="display:none" title="İndir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="dp-ph" id="dpPh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <p>Belge türünü seçip formu doldurun,<br>belgeniz burada görünecek.</p>
+        </div>
+        <div class="dp-gen" id="dpGen">
+          <div class="spin"></div>
+          <p style="font-size:13.5px">Belgeniz hazırlanıyor…</p>
+        </div>
+        <pre class="dp-content" id="dpContent"></pre>
+        <div class="dp-dl" id="dpDl">
+          <button class="btn btn-primary btn-sm" onclick="dlDoc()">İndir (TXT)</button>
+          <button class="btn btn-secondary btn-sm" onclick="cpyDoc()">Kopyala</button>
+          <button class="btn btn-ghost btn-sm" onclick="goStep1()">Yeni Belge</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════ -->
+<section id="testimonials">
+  <div class="wrap">
+    <div class="tc fu">
+      <div class="tag"><span class="tag-dot"></span>Kullanıcı Görüşleri</div>
+      <h2>Kullanıcılarımız<br><em class="hl">Ne Söylüyor?</em></h2>
+    </div>
+    <div class="test-grid">
+      <div class="test-card fu d1">
+        <div class="test-stars">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-q">"İş akdim feshedildi ve haklarım konusunda net bir bilgiye ihtiyacım vardı. HukukAI sayesinde hangi belgeleri toplayacağımı, hangi adımları atacağımı öğrendim. Süreci çok daha bilinçli yönettim."</p>
+        <div class="test-auth">
+          <div class="test-av" style="background:#2563eb">MY</div>
+          <div><div class="test-name">Mehmet Yılmaz</div><div class="test-role">Yazılım Mühendisi · İstanbul</div></div>
+        </div>
+      </div>
+      <div class="test-card fu d2">
+        <div class="test-stars">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-q">"Kiracımla yaşadığım uyuşmazlıkta kira ihtarnamesini HukukAI ile hazırladım. Platformun sunduğu hukuki bilgi son derece detaylı ve anlaşılırdı. Süreci zahmetsizce yönettim."</p>
+        <div class="test-auth">
+          <div class="test-av" style="background:#7c3aed">ZD</div>
+          <div><div class="test-name">Zeynep Demir</div><div class="test-role">Girişimci · Ankara</div></div>
+        </div>
+      </div>
+      <div class="test-card fu d3">
+        <div class="test-stars">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-q">"Sözleşme analizi özelliği sayesinde imzalamak üzere olduğum iş sözleşmesindeki riskli maddeleri tespit ettim. Platformun sunduğu detaylı analiz beni çok olası bir sorundan korudu."</p>
+        <div class="test-auth">
+          <div class="test-av" style="background:#059669">KK</div>
+          <div><div class="test-name">Kerem Koç</div><div class="test-role">Muhasebeci · Bursa</div></div>
+        </div>
+      </div>
+      <div class="test-card fu d4">
+        <div class="test-stars">
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="test-q">"Şirketimiz için işçi sözleşmelerini ve KVKK belgelerini hazırlarken HukukAI'yı kullandık. Kurumsal plan ile aldığımız destek oldukça kapsamlı ve profesyoneldi."</p>
+        <div class="test-auth">
+          <div class="test-av" style="background:var(--gold-dk)">FA</div>
+          <div><div class="test-name">Fatma Arslan</div><div class="test-role">İnsan Kaynakları Müdürü · İzmir</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     PRICING
+══════════════════════════════════════════ -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="tc fu">
+      <div class="tag"><span class="tag-dot"></span>Fiyatlandırma</div>
+      <h2>Size Uygun<br><em class="hl">Planı Seçin</em></h2>
+      <p class="sub">İstediğiniz zaman iptal edin. İlk 7 gün ücretsiz deneyin.</p>
+    </div>
+    <div class="bill-row">
+      <span class="bill-lbl">Aylık</span>
+      <div class="tog" id="billTog" onclick="togBill()"><div class="tog-k"></div></div>
+      <span class="bill-lbl">Yıllık</span>
+      <span class="save-tag" id="saveTag" style="display:none">%20 Tasarruf</span>
+    </div>
+    <div class="p-grid fu">
+      <!-- FREE -->
+      <div class="p-card d1">
+        <div class="p-plan">Ücretsiz</div>
+        <div class="p-price"><sup>₺</sup>0 <span>/ sonsuza</span></div>
+        <div class="p-per">Kredi kartı gerekmez</div>
+        <div class="p-desc">Platformu keşfetmek ve temel hukuki bilgiye erişmek isteyenler için.</div>
+        <div class="p-feats">
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Günde 5 AI sorgusu</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Aylık 2 dilekçe</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Temel kanun arama</div>
+          <div class="pf no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Belge analizi</div>
+          <div class="pf no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Dava takibi</div>
+          <div class="pf no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> API erişimi</div>
+        </div>
+        <button class="btn btn-secondary btn-block" onclick="openM('regModal')">Ücretsiz Başlayın</button>
+      </div>
+      <!-- PRO -->
+      <div class="p-card feat d2">
+        <div class="p-badge">En Popüler</div>
+        <div class="p-plan" style="color:var(--gold)">Pro</div>
+        <div class="p-price" id="proP"><sup>₺</sup>299 <span>/ ay</span></div>
+        <div class="p-per" id="proT">7 gün ücretsiz deneme</div>
+        <div class="p-desc">Bireysel kullanıcılar için kapsamlı hukuki danışmanlık paketi.</div>
+        <div class="p-feats">
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Sınırsız</strong> AI sorgusu</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Sınırsız dilekçe</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Aylık 10 belge analizi</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Dava takip sistemi</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 90 günlük geçmiş</div>
+          <div class="pf no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> API erişimi</div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="selPlan('pro')">Pro'ya Geçin</button>
+        <p style="font-size:11px;color:var(--txt3);text-align:center;margin-top:9px">7 gün ücretsiz, beğenmezseniz tam iade</p>
+      </div>
+      <!-- PLUS -->
+      <div class="p-card d3">
+        <div class="p-plan">Plus</div>
+        <div class="p-price" id="plusP"><sup>₺</sup>599 <span>/ ay</span></div>
+        <div class="p-per" id="plusT">7 gün ücretsiz deneme</div>
+        <div class="p-desc">Yoğun kullanıcılar ve küçük işletmeler için gelişmiş özellikler.</div>
+        <div class="p-feats">
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Pro plan dahil</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Sınırsız belge analizi</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> API erişimi</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 5 kullanıcı</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Öncelikli destek</div>
+          <div class="pf no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> SSO &amp; özel entegrasyon</div>
+        </div>
+        <button class="btn btn-secondary btn-block" onclick="selPlan('plus')">Plus'a Geçin</button>
+      </div>
+      <!-- ELITE -->
+      <div class="p-card d4">
+        <div class="p-plan">Elite</div>
+        <div class="p-price">Özel<span></span></div>
+        <div class="p-per">Kurumsal fiyatlandırma</div>
+        <div class="p-desc">Şirketler ve kurumlar için tam entegrasyon, özel SLA ve sınırsız erişim.</div>
+        <div class="p-feats">
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Plus plan dahil</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Sınırsız kullanıcı</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SSO &amp; özel entegrasyon</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SLA garantisi (%99.9)</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Dedicated yönetici</div>
+          <div class="pf yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> KVKK özel sözleşme</div>
+        </div>
+        <button class="btn btn-ghost btn-block" onclick="openM('contactModal')">Teklif Alın</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FAQ
+══════════════════════════════════════════ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="tc fu">
+      <div class="tag"><span class="tag-dot"></span>SSS</div>
+      <h2>Sıkça Sorulan <em class="hl">Sorular</em></h2>
+    </div>
+    <div class="faq-wrap">
+      <div class="faq-item" onclick="togFaq(this)">
+        <div class="faq-q">HukukAI ne tür hukuki sorulara yanıt verebilir?
+          <div class="faq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-a">İş hukuku, aile hukuku, ceza hukuku, borçlar hukuku, kira hukuku, ticaret hukuku, tüketici hukuku, miras hukuku, idare hukuku ve vergi hukuku dahil 50'den fazla kanun ve mevzuat alanında bilgi sunmaktadır.</div>
+      </div>
+      <div class="faq-item" onclick="togFaq(this)">
+        <div class="faq-q">Platform verilerimi nasıl korur?
+          <div class="faq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-a">Tüm verileriniz AES-256 şifreleme ile korunur. KVKK ve GDPR uyumlu altyapı kullanılmaktadır. Sohbet geçmişleriniz ve belgeleriniz yalnızca size özeldir; üçüncü taraflarla kesinlikle paylaşılmaz.</div>
+      </div>
+      <div class="faq-item" onclick="togFaq(this)">
+        <div class="faq-q">Ücretsiz planda günlük limit dolarsa ne olur?
+          <div class="faq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-a">Günlük limitiniz dolduğunda bildirim alırsınız. Ertesi gün otomatik olarak sıfırlanır. Sınırsız sorgu için Pro veya üzeri plana geçebilirsiniz; ilk 7 gün tamamen ücretsizdir.</div>
+      </div>
+      <div class="faq-item" onclick="togFaq(this)">
+        <div class="faq-q">Oluşturulan dilekçeler resmi başvurularda kullanılabilir mi?
+          <div class="faq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-a">HukukAI tarafından oluşturulan dilekçeler Türk hukuku standartlarına uygun formatta hazırlanır. Önemli ve resmi başvurularda sunmadan önce bir hukuk danışmanına inceletmenizi öneririz. Platform hukuki sorumluluk üstlenmemektedir.</div>
+      </div>
+      <div class="faq-item" onclick="togFaq(this)">
+        <div class="faq-q">Aboneliğimi istediğim zaman iptal edebilir miyim?
+          <div class="faq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-a">Evet. Herhangi bir ek ücret ödemeksizin istediğiniz zaman iptal edebilirsiniz. İptal ettiğinizde mevcut fatura döneminin sonuna kadar ücretli plan özelliklerinden yararlanmaya devam edersiniz.</div>
+      </div>
+      <div class="faq-item" onclick="togFaq(this)">
+        <div class="faq-q">OpenAI API anahtarımı nasıl eklerim?
+          <div class="faq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-a">Giriş yaptıktan sonra Ayarlar → API bölümünden kendi OpenAI API anahtarınızı ekleyebilirsiniz. Elite müşteriler için özel API entegrasyonu da sunulmaktadır.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta-strip">
+  <div class="wrap">
+    <div class="cta-inner fu">
+      <div class="tag" style="margin:0 auto 18px"><span class="tag-dot"></span>Başlayın</div>
+      <h2>Hukuki Güvenceniz<br><em class="hl">Bir Adım Ötede</em></h2>
+      <p>Ücretsiz planla başlayın, ihtiyacınıza göre yükseltin. Kredi kartı gerekmez.</p>
+      <div class="cta-btns">
+        <button class="btn btn-primary btn-lg" onclick="openM('regModal')">Ücretsiz Başlayın</button>
+        <button class="btn btn-secondary btn-lg" onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'})">Demo Deneyin</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <a href="#" class="logo ft-brand">
+          <div class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg></div>
+          <span class="logo-name">HukukAI</span>
+        </a>
+        <p class="ft-desc">Türkiye'nin yapay zeka destekli hukuki danışmanlık platformu. Haklarınızı öğrenin, belgelerinizi oluşturun, güvende kalın.</p>
+        <div class="ft-soc">
+          <a href="#" class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></a>
+          <a href="#" class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="#" class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" class="fsoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg></a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h4>Platform</h4>
+        <a href="#chat-section">AI Danışman</a>
+        <a href="#docs">Dilekçe Oluşturucu</a>
+        <a href="#features">Sözleşme Analizi</a>
+        <a href="#features">Kanun Rehberi</a>
+        <a href="#features">Dava Takibi</a>
+        <a href="#pricing">API Erişimi</a>
+      </div>
+      <div class="ft-col">
+        <h4>Şirket</h4>
+        <a href="#">Hakkımızda</a>
+        <a href="#">Blog</a>
+        <a href="#">Kariyer</a>
+        <a href="#">Basın</a>
+        <a href="#" onclick="openM('contactModal')">İletişim</a>
+      </div>
+      <div class="ft-col">
+        <h4>Destek</h4>
+        <a href="#">Yardım Merkezi</a>
+        <a href="#" onclick="openM('privModal')">Gizlilik Politikası</a>
+        <a href="#" onclick="openM('tosModal')">Kullanım Koşulları</a>
+        <a href="#" onclick="openM('kvkkModal')">KVKK</a>
+        <a href="#">Çerez Politikası</a>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <div class="ft-copy">© 2026 HukukAI Teknoloji A.Ş. Tüm hakları saklıdır.</div>
+      <div class="ft-disc">
+        <div class="warn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span><strong>Yasal Uyarı:</strong> HukukAI genel bilgi amaçlıdır ve resmi hukuki tavsiye niteliği taşımaz. Önemli hukuki kararlar için uzman bir danışmana başvurunuz.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════ -->
+
+<!-- LOGIN -->
+<div class="overlay" id="loginModal" onclick="ovClick(event,'loginModal')">
+  <div class="modal">
+    <div class="mh"><h3 class="mh-title">Giriş Yapın</h3><button class="mc-btn" onclick="closeM('loginModal')">×</button></div>
+    <div class="msub">Hesabınıza güvenli erişim sağlayın.</div>
+    <div class="mb">
+      <div id="loginBody">
+        <div class="soc-btns">
+          <button class="soc-btn" onclick="socialL('Google')">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google ile Devam Edin</button>
+          <button class="soc-btn" onclick="socialL('Apple')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Apple ile Devam Edin</button>
+        </div>
+        <div class="or-div">veya e-posta ile</div>
+        <div class="iw">
+          <div class="iw-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <input type="email" class="fi" id="lEmail" placeholder="E-posta adresiniz">
+        </div>
+        <div class="iw">
+          <div class="iw-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+          <input type="password" class="fi" id="lPw" placeholder="Şifreniz">
+          <button class="pw-eye" onclick="togPw('lPw',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="rem-row">
+          <label class="rem-l"><input type="checkbox"> Beni hatırla</label>
+          <a class="fl-link" href="#" onclick="openM('forgotModal');closeM('loginModal')">Şifremi unuttum</a>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="doLogin()" id="loginBtn">Giriş Yapın</button>
+        <div class="auth-sw">Hesabınız yok mu? <a href="#" onclick="openM('regModal');closeM('loginModal')">Kayıt Olun</a></div>
+      </div>
+      <div id="loginOk" style="display:none"><div class="suc-state"><div class="suc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="suc-title">Hoş Geldiniz</div><div class="suc-desc">Hesabınıza başarıyla giriş yapıldı.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="overlay" id="regModal" onclick="ovClick(event,'regModal')">
+  <div class="modal modal-w">
+    <div class="mh"><h3 class="mh-title">Hesap Oluşturun</h3><button class="mc-btn" onclick="closeM('regModal')">×</button></div>
+    <div class="msub">HukukAI platformuna katılın.</div>
+    <div class="mb">
+      <div id="regBody">
+        <div class="plan-tabs">
+          <button class="pt act" onclick="selRPlan('free',this)">Ücretsiz</button>
+          <button class="pt" onclick="selRPlan('pro',this)">Pro — ₺299/ay</button>
+          <button class="pt" onclick="selRPlan('plus',this)">Plus — ₺599/ay</button>
+          <button class="pt" onclick="selRPlan('elite',this)">Elite</button>
+        </div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Ad <span class="fl-req">*</span></label><input type="text" class="fi" id="rAd" placeholder="Adınız"></div>
+          <div class="fg"><label class="fl">Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="rSoyad" placeholder="Soyadınız"></div>
+        </div>
+        <div class="fg"><label class="fl">E-posta <span class="fl-req">*</span></label><input type="email" class="fi" id="rEmail" placeholder="ornek@email.com"></div>
+        <div class="fg"><label class="fl">Şifre <span class="fl-req">*</span></label>
+          <div class="iw" style="margin-bottom:6px">
+            <input type="password" class="fi" id="rPw" placeholder="En az 8 karakter" oninput="pwStr(this.value)">
+            <button class="pw-eye" onclick="togPw('rPw',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+          <div class="pw-bars"><div class="pw-bar" id="b1"></div><div class="pw-bar" id="b2"></div><div class="pw-bar" id="b3"></div><div class="pw-bar" id="b4"></div></div>
+          <div class="pw-lbl" id="pwLbl">Şifre gücü</div>
+        </div>
+        <div class="fg"><label class="fl">Hesap Türü</label>
+          <select class="fs" id="rTur" onchange="turChange(this.value)">
+            <option value="bireysel">Bireysel</option>
+            <option value="sirket">Şirket / Kurum</option>
+          </select>
+        </div>
+        <div id="sirketF" style="display:none">
+          <div class="fg"><label class="fl">Şirket / Kurum Adı</label><input type="text" class="fi" placeholder="Şirket adı"></div>
+          <div class="fg"><label class="fl">Vergi Numarası</label><input type="text" class="fi" placeholder="Vergi numarası"></div>
+        </div>
+        <div class="cb-row"><input type="checkbox" id="tosC"> <span><a href="#" onclick="openM('tosModal')">Kullanım Koşulları</a> ve <a href="#" onclick="openM('privModal')">Gizlilik Politikası</a>'nı kabul ediyorum. <span class="fl-req">*</span></span></div>
+        <div class="cb-row"><input type="checkbox"> <span>Kampanya ve duyurulardan haberdar olmak istiyorum.</span></div>
+        <button class="btn btn-primary btn-block" style="margin-top:6px" onclick="doReg()">Hesap Oluşturun</button>
+        <div class="auth-sw">Hesabınız var mı? <a href="#" onclick="openM('loginModal');closeM('regModal')">Giriş Yapın</a></div>
+      </div>
+      <div id="regOk" style="display:none"><div class="suc-state"><div class="suc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="suc-title">Hesabınız Oluşturuldu</div><div class="suc-desc">E-posta doğrulama bağlantısı gönderildi. Spam klasörünüzü de kontrol edin.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT -->
+<div class="overlay" id="forgotModal" onclick="ovClick(event,'forgotModal')">
+  <div class="modal">
+    <div class="mh"><h3 class="mh-title">Şifre Sıfırlama</h3><button class="mc-btn" onclick="closeM('forgotModal')">×</button></div>
+    <div class="msub">E-posta adresinize sıfırlama bağlantısı göndereceğiz.</div>
+    <div class="mb">
+      <div id="forgotBody">
+        <div class="fg"><label class="fl">E-posta</label><input type="email" class="fi" id="fEmail" placeholder="ornek@email.com"></div>
+        <button class="btn btn-primary btn-block" onclick="doForgot()">Bağlantı Gönder</button>
+        <div class="auth-sw"><a href="#" onclick="openM('loginModal');closeM('forgotModal')">← Girişe dön</a></div>
+      </div>
+      <div id="forgotOk" style="display:none"><div class="suc-state"><div class="suc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="suc-title">E-posta Gönderildi</div><div class="suc-desc">Şifre sıfırlama bağlantısı gönderildi. Spam klasörünüzü de kontrol edin.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT -->
+<div class="overlay" id="payModal" onclick="ovClick(event,'payModal')">
+  <div class="modal modal-w">
+    <div class="mh"><h3 class="mh-title">Ödeme</h3><button class="mc-btn" onclick="closeM('payModal')">×</button></div>
+    <div class="msub" id="paySubTitle">Pro Plan — 7 gün ücretsiz deneme</div>
+    <div class="mb">
+      <div id="payBody">
+        <div class="ord-sum">
+          <div class="or"><span>Plan</span><span id="payPN">Pro</span></div>
+          <div class="or"><span>Fiyat</span><span id="payPP">₺299/ay</span></div>
+          <div class="or"><span>İlk 7 gün</span><span style="color:var(--ok)">Ücretsiz</span></div>
+          <div class="or"><span>Bugün ödenecek</span><span>₺0,00</span></div>
+        </div>
+        <div class="pay-tabs">
+          <button class="pay-t act" onclick="payTab('card',this)">Kredi / Banka Kartı</button>
+          <button class="pay-t" onclick="payTab('tr',this)">Havale / EFT</button>
+          <button class="pay-t" onclick="payTab('coup',this)">Kupon</button>
+        </div>
+        <div id="cardT">
+          <div class="fg"><label class="fl">Kart Sahibi</label><input type="text" class="fi" id="cName" placeholder="Ad Soyad"></div>
+          <div class="fg">
+            <label class="fl">Kart Numarası</label>
+            <div style="position:relative">
+              <input type="text" class="fi" id="cNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)">
+              <div class="card-logos" style="position:absolute;right:10px;top:50%;transform:translateY(-50%)">
+                <span class="cl" id="vi">VISA</span><span class="cl" id="mc">MC</span><span class="cl" id="tr">TROY</span>
+              </div>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Son Kullanma</label><input type="text" class="fi" id="cExp" placeholder="AA/YY" maxlength="5" oninput="fmtExp(this)"></div>
+            <div class="fg"><label class="fl">CVV</label><input type="text" class="fi" id="cCvv" placeholder="123" maxlength="4"></div>
+          </div>
+          <div class="cb-row"><input type="checkbox"> <span style="font-size:13px;color:var(--txt2)">Kartı sonraki ödemeler için kaydet</span></div>
+        </div>
+        <div id="trT" style="display:none"><div class="tr-info"><p><strong>Banka:</strong> Ziraat Bankası</p><p><strong>Hesap Adı:</strong> HukukAI Teknoloji A.Ş.</p><p><strong>IBAN:</strong> TR12 0001 0012 3456 7890 1234 56</p><p style="margin-top:10px;color:var(--txt3)">Ödeme dekontunu <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="eb848f8e868eab839e809e808a82c5888486">[email&#160;protected]</a></strong> adresine gönderin. Hesabınız 24 saat içinde aktifleştirilir.</p></div></div>
+        <div id="coupT" style="display:none">
+          <div class="fg"><label class="fl">Kupon Kodu</label>
+            <div class="coup-row"><input type="text" class="fi" id="couIn" placeholder="HUKUKAI50"><button class="btn btn-secondary btn-sm" onclick="applyCoup()">Uygula</button></div>
+          </div>
+          <div id="couRes"></div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="doPay()" id="payBtn">Güvenli Ödemeyi Tamamlayın</button>
+        <div class="pay-sec">256-bit SSL Şifreleme · Iyzico Altyapısı · PCI DSS Uyumlu</div>
+      </div>
+      <div id="payOk" style="display:none"><div class="suc-state"><div class="suc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="suc-title">Ödeme Başarılı</div><div class="suc-desc">Planınız aktifleştirildi. Tüm özellikler kullanıma hazır.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="overlay" id="setModal" onclick="ovClick(event,'setModal')">
+  <div class="modal modal-w">
+    <div class="mh"><h3 class="mh-title">Ayarlar</h3><button class="mc-btn" onclick="closeM('setModal')">×</button></div>
+    <div class="mb">
+      <div class="set-tabs pay-tabs">
+        <button class="pay-t act" onclick="setTab('prof',this)">Profil</button>
+        <button class="pay-t" onclick="setTab('sec',this)">Güvenlik</button>
+        <button class="pay-t" onclick="setTab('api',this)">API</button>
+        <button class="pay-t" onclick="setTab('notif',this)">Bildirimler</button>
+      </div>
+      <div id="sProfT">
+        <div class="fr"><div class="fg"><label class="fl">Ad</label><input type="text" class="fi" value="Ahmet"></div><div class="fg"><label class="fl">Soyad</label><input type="text" class="fi" value="Yılmaz"></div></div>
+        <div class="fg"><label class="fl">E-posta</label><input type="email" class="fi" value="ahmet@email.com"></div>
+        <div class="fg"><label class="fl">Telefon</label><input type="tel" class="fi" placeholder="5XX XXX XX XX"></div>
+        <button class="btn btn-primary btn-sm" onclick="toast('Değişiklikler kaydedildi','ok');closeM('setModal')">Kaydet</button>
+      </div>
+      <div id="sSecT" style="display:none">
+        <div class="fg"><label class="fl">Mevcut Şifre</label><input type="password" class="fi" placeholder="••••••••"></div>
+        <div class="fg"><label class="fl">Yeni Şifre</label><input type="password" class="fi" placeholder="En az 8 karakter"></div>
+        <div class="fg"><label class="fl">Yeni Şifre Tekrar</label><input type="password" class="fi" placeholder="Tekrarlayın"></div>
+        <div style="display:flex;gap:9px;margin-top:4px">
+          <button class="btn btn-primary btn-sm" onclick="toast('Şifre güncellendi','ok');closeM('setModal')">Güncelle</button>
+          <button class="btn btn-danger btn-sm" onclick="if(confirm('Hesabınız silinecek. Emin misiniz?')){doLogout();toast('Hesap silindi','inf')}">Hesabı Sil</button>
+        </div>
+      </div>
+      <div id="sApiT" style="display:none">
+        <div class="fg">
+          <label class="fl">OpenAI API Anahtarı</label>
+          <div class="iw">
+            <div class="iw-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></div>
+            <input type="password" class="fi" id="apiInp" placeholder="sk-…">
+            <button class="pw-eye" onclick="togPw('apiInp',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+          <p style="font-size:11.5px;color:var(--txt3);margin-top:5px">Anahtarınızı <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--gold)">platform.openai.com</a> adresinden edinebilirsiniz.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveKey()">Anahtarı Kaydet</button>
+      </div>
+      <div id="sNotifT" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:13px">
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer"><input type="checkbox" checked style="accent-color:var(--gold)"> E-posta bildirimleri</label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer"><input type="checkbox" checked style="accent-color:var(--gold)"> Haftalık özet bülteni</label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer"><input type="checkbox" style="accent-color:var(--gold)"> SMS bildirimleri</label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer"><input type="checkbox" checked style="accent-color:var(--gold)"> Hukuki mevzuat güncellemeleri</label>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:18px" onclick="toast('Bildirim tercihleri kaydedildi','ok');closeM('setModal')">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="overlay" id="contactModal" onclick="ovClick(event,'contactModal')">
+  <div class="modal">
+    <div class="mh"><h3 class="mh-title">Elite Teklif Alın</h3><button class="mc-btn" onclick="closeM('contactModal')">×</button></div>
+    <div class="msub">24 saat içinde sizinle iletişime geçeceğiz.</div>
+    <div class="mb">
+      <div id="contBody">
+        <div class="fr"><div class="fg"><label class="fl">Ad Soyad</label><input type="text" class="fi" placeholder="Ad Soyad"></div><div class="fg"><label class="fl">Şirket</label><input type="text" class="fi" placeholder="Şirket adı"></div></div>
+        <div class="fg"><label class="fl">E-posta</label><input type="email" class="fi" placeholder="is@sirket.com"></div>
+        <div class="fg"><label class="fl">Kullanıcı Sayısı</label><select class="fs"><option>10–50</option><option>50–200</option><option>200+</option></select></div>
+        <div class="fg"><label class="fl">İhtiyaçlarınız</label><textarea class="fta" placeholder="Özellikler, entegrasyonlar, özel gereksinimler…"></textarea></div>
+        <button class="btn btn-primary btn-block" onclick="doCont()">Teklif İsteyin</button>
+      </div>
+      <div id="contOk" style="display:none"><div class="suc-state"><div class="suc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="suc-title">Talebiniz Alındı</div><div class="suc-desc">24 saat içinde sizinle iletişime geçeceğiz.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY -->
+<div class="overlay" id="privModal" onclick="ovClick(event,'privModal')">
+  <div class="modal"><div class="mh"><h3 class="mh-title">Gizlilik Politikası</h3><button class="mc-btn" onclick="closeM('privModal')">×</button></div>
+  <div class="mb" style="max-height:60vh;overflow-y:auto"><p style="font-size:13px;color:var(--txt2);line-height:1.8"><strong style="color:var(--txt)">Son güncelleme: 1 Ocak 2026</strong><br><br>HukukAI kullanıcılarının kişisel verilerinin güvenliğine büyük önem verir. Toplanan veriler; ad, soyad, e-posta ve anonim kullanım istatistikleri ile sınırlıdır. Veriler yalnızca hizmet sunumu amacıyla işlenir, üçüncü taraflarla paylaşılmaz. Tüm veriler AES-256 şifreleme ile korunur. KVKK Madde 11 kapsamında haklarınızı <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a1cad7cacae1c9d4cad4cac0c88fc2cecc">[email&#160;protected]</a></strong> adresine başvurarak kullanabilirsiniz.</p>
+  <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="closeM('privModal')">Anladım</button></div></div>
+</div>
+
+<!-- TOS -->
+<div class="overlay" id="tosModal" onclick="ovClick(event,'tosModal')">
+  <div class="modal"><div class="mh"><h3 class="mh-title">Kullanım Koşulları</h3><button class="mc-btn" onclick="closeM('tosModal')">×</button></div>
+  <div class="mb" style="max-height:60vh;overflow-y:auto"><p style="font-size:13px;color:var(--txt2);line-height:1.8"><strong style="color:var(--txt)">Son güncelleme: 1 Ocak 2026</strong><br><br><strong style="color:var(--txt)">1. Hizmet Kapsamı:</strong> HukukAI genel hukuki bilgi platformudur; resmi hukuki tavsiye niteliği taşımaz.<br><br><strong style="color:var(--txt)">2. Kullanıcı Yükümlülükleri:</strong> Platform yalnızca yasal amaçlar için kullanılabilir.<br><br><strong style="color:var(--txt)">3. Sorumluluk:</strong> Platform, sunulan içeriklerin eksiksizliğini ve güncelliğini garanti etmez.<br><br><strong style="color:var(--txt)">4. Ödeme:</strong> Abonelikler dönemsel faturalandırılır. İptal bildirimi sonrası yeni dönem ücretlendirilmez.</p>
+  <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="closeM('tosModal')">Kabul Ediyorum</button></div></div>
+</div>
+
+<!-- KVKK -->
+<div class="overlay" id="kvkkModal" onclick="ovClick(event,'kvkkModal')">
+  <div class="modal"><div class="mh"><h3 class="mh-title">KVKK Aydınlatma Metni</h3><button class="mc-btn" onclick="closeM('kvkkModal')">×</button></div>
+  <div class="mb" style="max-height:60vh;overflow-y:auto"><p style="font-size:13px;color:var(--txt2);line-height:1.8">6698 sayılı Kişisel Verilerin Korunması Kanunu uyarınca HukukAI Teknoloji A.Ş. tarafından kişisel verileriniz işlenmektedir.<br><br><strong style="color:var(--txt)">Veri Sorumlusu:</strong> HukukAI Teknoloji A.Ş.<br><br><strong style="color:var(--txt)">İşlenen Veriler:</strong> Kimlik, iletişim ve kullanım verileri.<br><br><strong style="color:var(--txt)">Amaçlar:</strong> Hizmet sunumu, müşteri ilişkileri, yasal yükümlülükler.<br><br><strong style="color:var(--txt)">Haklarınız:</strong> KVKK Madde 11 kapsamında erişim, düzeltme, silme ve itiraz haklarına sahipsiniz.</p>
+  <button class="btn btn-primary btn-block" style="margin-top:18px" onclick="closeM('kvkkModal')">Anladım</button></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── STATE ──
+const S={
+  user:null,
+  key:localStorage.getItem('huk_key')||'',
+  msgs:[],
+  busy:false,
+  docType:null,
+  docResult:'',
+  yearly:false,
+  plan:'pro',
+  dq:+localStorage.getItem('huk_dq')||0,
+  dqDate:localStorage.getItem('huk_dqd')||''
+};
+const td=new Date().toDateString();
+if(S.dqDate!==td){S.dq=0;localStorage.setItem('huk_dq',0);localStorage.setItem('huk_dqd',td)}
+
+const SYS=`Sen HukukAI Danışmanı'sın — Türkiye'nin yapay zeka destekli hukuki danışmanlık asistanı.
+
+Uzmanlık alanların: İş Hukuku (İK), Aile Hukuku (TMK), Ceza Hukuku (TCK/CMK), Borçlar Hukuku (TBK), Ticaret Hukuku (TTK), İdare Hukuku, Tüketici Hukuku, Kira Hukuku, Miras Hukuku, Vergi Hukuku.
+
+Yanıt kuralları:
+• Doğrudan konuya gir
+• Madde madde, net Türkçe
+• İlgili kanun maddelerini belirt (örn: "İş Kanunu Madde 17")
+• Pratik adımları listele
+• Son satırda MUTLAKA şunu yaz: "⚠️ Bu bilgiler genel amaçlıdır; kesin hukuki karar için uzman bir danışmana başvurunuz."
+• 200–500 kelime arası yanıt ver`;
+
+const DOC_FORMS={
+  kira:`<div class="fg"><label class="fl">Kiraya Veren Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d0" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Kiracı Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d1" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Kiralanan Adres <span class="fl-req">*</span></label><textarea class="fta" id="d2" style="min-height:60px" placeholder="Tam adres"></textarea></div>
+<div class="fr"><div class="fg"><label class="fl">Aylık Kira (₺)</label><input type="number" class="fi" id="d3" placeholder="5000"></div><div class="fg"><label class="fl">Geciken Ay</label><input type="number" class="fi" id="d4" placeholder="3"></div></div>
+<div class="fg"><label class="fl">İhtar Konusu</label><select class="fs" id="d5"><option>Kira Borcunun Ödenmesi</option><option>Tahliye Talebi</option><option>Kira Artışı</option><option>Hasar / Bakım</option></select></div>`,
+  is:`<div class="fg"><label class="fl">İşçi Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d0" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">İşveren / Şirket <span class="fl-req">*</span></label><input type="text" class="fi" id="d1" placeholder="Şirket adı"></div>
+<div class="fr"><div class="fg"><label class="fl">İşe Başlama</label><input type="date" class="fi" id="d2"></div><div class="fg"><label class="fl">Ayrılış Tarihi</label><input type="date" class="fi" id="d3"></div></div>
+<div class="fg"><label class="fl">Talep</label><select class="fs" id="d4"><option>Kıdem Tazminatı</option><option>İhbar Tazminatı</option><option>İşe İade</option><option>Fazla Mesai</option><option>Yıllık İzin Ücreti</option></select></div>
+<div class="fg"><label class="fl">Aylık Brüt Maaş (₺)</label><input type="number" class="fi" id="d5" placeholder="15000"></div>`,
+  tuketici:`<div class="fg"><label class="fl">Şikayetçi Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d0" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Satıcı / Firma <span class="fl-req">*</span></label><input type="text" class="fi" id="d1" placeholder="Firma adı"></div>
+<div class="fg"><label class="fl">Ürün / Hizmet</label><input type="text" class="fi" id="d2" placeholder="Ürün adı"></div>
+<div class="fg"><label class="fl">Şikayet Konusu</label><select class="fs" id="d3"><option>Ayıplı Ürün</option><option>Hizmet Yetersizliği</option><option>İade Reddi</option><option>Garanti Kapsamı</option><option>Yanıltıcı Reklam</option></select></div>
+<div class="fg"><label class="fl">Talep Edilen Tutar (₺)</label><input type="number" class="fi" id="d4" placeholder="2500"></div>`,
+  borc:`<div class="fg"><label class="fl">Alacaklı Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d0" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Borçlu Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d1" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Borç Tutarı (₺) <span class="fl-req">*</span></label><input type="number" class="fi" id="d2" placeholder="10000"></div>
+<div class="fg"><label class="fl">Borç Kaynağı</label><select class="fs" id="d3"><option>Kredi / Borç Para</option><option>Satış Bedeli</option><option>Kira Alacağı</option><option>Hizmet Bedeli</option></select></div>`,
+  bosanma:`<div class="fg"><label class="fl">Davacı Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d0" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Davalı (Eş) Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d1" placeholder="Ad Soyad"></div>
+<div class="fr"><div class="fg"><label class="fl">Evlilik Tarihi</label><input type="date" class="fi" id="d2"></div><div class="fg"><label class="fl">Tür</label><select class="fs" id="d3"><option>Anlaşmalı</option><option>Çekişmeli</option></select></div></div>
+<div class="fg"><label class="fl">Ortak Çocuk Sayısı</label><input type="number" class="fi" id="d4" placeholder="0" min="0"></div>`,
+  miras:`<div class="fg"><label class="fl">Başvuran Ad Soyad <span class="fl-req">*</span></label><input type="text" class="fi" id="d0" placeholder="Ad Soyad"></div>
+<div class="fg"><label class="fl">Müteveffanın Adı <span class="fl-req">*</span></label><input type="text" class="fi" id="d1" placeholder="Vefat edenin adı"></div>
+<div class="fg"><label class="fl">Vefat Tarihi</label><input type="date" class="fi" id="d2"></div>
+<div class="fg"><label class="fl">Talep Konusu</label><select class="fs" id="d3"><option>Veraset İlamı</option><option>Miras Taksimi</option><option>Vasiyetnameye İtiraz</option><option>Mirasçılık Belgesi</option></select></div>`
+};
+const DOC_NAMES={kira:'Kira İhtarnamesi',is:'İş Mahkemesi Dilekçesi',tuketici:'Tüketici Şikayet Dilekçesi',borc:'Borç İhtarnamesi',bosanma:'Boşanma Dilekçesi',miras:'Miras Talebi'};
+
+// ── TOAST ──
+function toast(msg,type='inf'){
+  const ic={ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',er:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',inf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',wn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'};
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.innerHTML=`<div class="t-ico">${ic[type]||ic.inf}</div><span class="t-msg">${msg}</span><button class="t-close" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),280)},3500);
+}
+
+// ── MODAL ──
+function openM(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden'}
+function closeM(id){document.getElementById(id).classList.remove('show');document.body.style.overflow=''}
+function ovClick(e,id){if(e.target===document.getElementById(id))closeM(id)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.show').forEach(m=>m.classList.remove('show'))})
+
+// ── NAV ──
+window.addEventListener('scroll',()=>{
+  const p=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100;
+  document.getElementById('bar').style.width=p+'%';
+  document.getElementById('nav').classList.toggle('on',window.scrollY>60);
+});
+function togMob(){document.getElementById('mobMenu').classList.toggle('show')}
+function closeMob(){document.getElementById('mobMenu').classList.remove('show')}
+function togDD(){document.getElementById('navDD').classList.toggle('show')}
+document.addEventListener('click',e=>{if(!e.target.closest('.av-wrap'))document.getElementById('navDD')?.classList.remove('show')})
+
+// ── AUTH ──
+function doLogin(){
+  const e=document.getElementById('lEmail').value;
+  const p=document.getElementById('lPw').value;
+  if(!e||!p){toast('E-posta ve şifre gerekli','er');return}
+  const b=document.getElementById('loginBtn');
+  b.disabled=true;b.textContent='Giriş yapılıyor…';
+  setTimeout(()=>{
+    S.user={name:'Ahmet Yılmaz',email:e,plan:'free'};
+    document.getElementById('loginBody').style.display='none';
+    document.getElementById('loginOk').style.display='block';
+    updNav();
+    setTimeout(()=>{closeM('loginModal');toast('Hoş geldiniz','ok')},1500);
+  },1400);
+}
+function doReg(){
+  const a=document.getElementById('rAd').value,s=document.getElementById('rSoyad').value,e=document.getElementById('rEmail').value,p=document.getElementById('rPw').value,t=document.getElementById('tosC').checked;
+  if(!a||!s||!e||!p){toast('Tüm zorunlu alanları doldurun','er');return}
+  if(!t){toast('Kullanım koşullarını kabul edin','er');return}
+  const b=event.target;b.disabled=true;b.textContent='Oluşturuluyor…';
+  setTimeout(()=>{
+    S.user={name:`${a} ${s}`,email:e,plan:S.plan||'free'};
+    document.getElementById('regBody').style.display='none';
+    document.getElementById('regOk').style.display='block';
+    updNav();
+    setTimeout(()=>{closeM('regModal');if(S.plan!=='free')openM('payModal');else toast('Hesabınız oluşturuldu','ok')},2000);
+  },1800);
+}
+function doLogout(){
+  S.user=null;
+  document.getElementById('navGuest').style.display='flex';
+  document.getElementById('navUser').style.display='none';
+  toast('Görüşürüz','inf');
+  document.getElementById('navDD').classList.remove('show');
+}
+function updNav(){
+  if(!S.user)return;
+  document.getElementById('navGuest').style.display='none';
+  document.getElementById('navUser').style.display='flex';
+  const ini=S.user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('navInit').textContent=ini;
+  document.getElementById('ddName').textContent=S.user.name;
+  document.getElementById('ddPlan').textContent='· '+{free:'Ücretsiz',pro:'Pro',plus:'Plus',elite:'Elite'}[S.user.plan||'free']+' Plan';
+}
+function socialL(p){setTimeout(()=>{S.user={name:'Ahmet Yılmaz',email:'ahmet@gmail.com',plan:'free'};closeM('loginModal');closeM('regModal');updNav();toast(`${p} ile giriş başarılı`,'ok')},700)}
+function doForgot(){const e=document.getElementById('fEmail').value;if(!e){toast('E-posta girin','er');return}document.getElementById('forgotBody').style.display='none';document.getElementById('forgotOk').style.display='block'}
+function selRPlan(p,btn){S.plan=p;document.querySelectorAll('.pt').forEach(t=>t.classList.remove('act'));btn.classList.add('act')}
+function togPw(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
+function pwStr(pw){const bs=['b1','b2','b3','b4'];const cs=['w','f','g','s'];const ls=['Zayıf','Orta','Güçlü','Çok Güçlü'];bs.forEach(b=>{document.getElementById(b).className='pw-bar'});let sc=0;if(pw.length>=8)sc++;if(/[A-Z]/.test(pw))sc++;if(/[0-9]/.test(pw))sc++;if(/[^a-zA-Z0-9]/.test(pw))sc++;for(let i=0;i<sc;i++)document.getElementById(bs[i]).classList.add(cs[sc-1]);document.getElementById('pwLbl').textContent=sc>0?ls[sc-1]:'Şifre gücü'}
+function turChange(v){document.getElementById('sirketF').style.display=v==='sirket'?'block':'none'}
+
+// ── CHAT ──
+async function sendMsg(){
+  const inp=document.getElementById('chatIn');
+  const msg=inp.value.trim();
+  if(!msg||S.busy)return;
+  const key=S.key||localStorage.getItem('huk_key');
+  if(!key){openM('setModal');setTimeout(()=>setTab('api',document.querySelectorAll('.pay-t')[2]),200);toast('Ayarlar → API bölümüne anahtarınızı girin','wn');return}
+  if(!S.user&&S.dq>=5){toast('Günlük sorgulama limitine ulaştınız. Devam için giriş yapın.','wn');openM('loginModal');return}
+  S.dq++;localStorage.setItem('huk_dq',S.dq);
+  document.getElementById('quickChips').style.display='none';
+  addUserMsg(msg);inp.value='';inp.style.height='46px';
+  document.getElementById('sendBtn').disabled=true;
+  S.msgs.push({role:'user',content:msg});S.busy=true;
+  const tid='t'+Date.now();addTyping(tid);
+  try{
+    const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:SYS},...S.msgs],max_tokens:1000,temperature:0.7})});
+    rmTyping(tid);
+    if(!r.ok){const er=await r.json();throw new Error(er.error?.message||'API hatası')}
+    const d=await r.json();const rep=d.choices[0].message.content;
+    S.msgs.push({role:'assistant',content:rep});addAiMsg(rep);
+  }catch(e){rmTyping(tid);addAiMsg('Bir hata oluştu: '+e.message+'\n\nAPI anahtarınızı kontrol edin.');}
+  S.busy=false;document.getElementById('sendBtn').disabled=false;
+}
+function addUserMsg(m){const b=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='usr-bub-wrap';d.innerHTML=`<div class="usr-bub">${esc(m)}</div>`;b.appendChild(d);b.scrollTop=b.scrollHeight}
+function addAiMsg(m){
+  const b=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='msg-ai-row';
+  const t=new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  const mEsc=m.replace(/`/g,'\\`');
+  d.innerHTML=`<div class="msg-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg></div>
+  <div class="msg-body"><div class="ai-bub">${fmt(m)}</div>
+  <div class="ai-acts">
+    <button class="ai-act" onclick="cpText(\`${mEsc}\`)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Kopyala</button>
+    <button class="ai-act" onclick="this.style.color='var(--ok)'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg></button>
+    <button class="ai-act" onclick="this.style.color='var(--err)'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg></button>
+  </div><div class="msg-time">${t}</div></div>`;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+}
+function addTyping(id){const b=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='msg-ai-row';d.id=id;d.innerHTML='<div class="msg-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg></div><div class="ai-bub typing-row"><div class="dots"><span></span><span></span><span></span></div></div>';b.appendChild(d);b.scrollTop=b.scrollHeight}
+function rmTyping(id){document.getElementById(id)?.remove()}
+function fmt(s){return esc(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cpText(t){navigator.clipboard.writeText(t).then(()=>toast('Kopyalandı','ok'))}
+function clearChat(){S.msgs=[];document.getElementById('chatMsgs').innerHTML='<div class="msg-ai-row"><div class="msg-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M5 8h14M5 8l-2 6a5 5 0 0010 0L11 8M13 8l2 6a5 5 0 0010 0L19 8"/></svg></div><div class="msg-body"><div class="ai-bub">Sohbet temizlendi. Yeni bir soru sorabilirsiniz.</div></div></div>';document.getElementById('quickChips').style.display='flex';toast('Temizlendi','inf')}
+function copyChat(){const t=S.msgs.map(m=>`${m.role==='user'?'Siz':'HukukAI'}: ${m.content}`).join('\n\n');navigator.clipboard.writeText(t||'Sohbet boş').then(()=>toast('Kopyalandı','ok'))}
+function saveChat(){if(!S.user){openM('loginModal');toast('Kaydetmek için giriş yapın','wn');return}toast('Sohbet kaydedildi','ok')}
+function sendQ(m){document.getElementById('chatIn').value=m;sendMsg()}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
+function grow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px'}
+
+// ── DOCS ──
+function selDocType(t,btn){S.docType=t;document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('docNextBtn').disabled=false}
+function goStep2(){if(!S.docType)return;document.getElementById('docS1').style.display='none';document.getElementById('docS2').style.display='block';document.getElementById('docFormTitle').textContent=DOC_NAMES[S.docType];document.getElementById('docForm').innerHTML=DOC_FORMS[S.docType]||'';document.getElementById('ds1').classList.remove('act');document.getElementById('ds2').classList.add('act')}
+function goStep1(){document.getElementById('docS1').style.display='block';document.getElementById('docS2').style.display='none';document.getElementById('ds2').classList.remove('act');document.getElementById('ds1').classList.add('act');document.getElementById('ds3').classList.remove('act');document.getElementById('dpPh').style.display='flex';document.getElementById('dpContent').style.display='none';document.getElementById('dpDl').style.display='none';document.getElementById('cpyDocBtn').style.display='none';document.getElementById('dlDocBtn').style.display='none';S.docResult=''}
+async function genDoc(){
+  const key=S.key||localStorage.getItem('huk_key');
+  if(!key){openM('setModal');setTimeout(()=>setTab('api',document.querySelectorAll('.pay-t')[2]),200);toast('Önce API anahtarını girin','wn');return}
+  const fd={};document.querySelectorAll('#docForm input,#docForm select,#docForm textarea').forEach((el,i)=>{fd['alan'+(i+1)]=el.value});
+  document.getElementById('ds3').classList.add('act');document.getElementById('dpPh').style.display='none';document.getElementById('dpGen').style.display='flex';
+  try{
+    const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'system',content:'Türk hukuku uzmanısın. Kullanıcının bilgilerine göre resmi, profesyonel Türkçe hukuki belge oluştur. Başlık büyük harf. Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle. Son satırda: "Bu belge HukukAI tarafından oluşturulmuştur." yaz.'},{role:'user',content:`${DOC_NAMES[S.docType]} belgesi oluştur.\nBilgiler: ${JSON.stringify(fd)}\nTarih: ${new Date().toLocaleDateString('tr-TR')}`}],max_tokens:1500})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error?.message);
+    S.docResult=d.choices[0].message.content;
+    document.getElementById('dpGen').style.display='none';
+    const c=document.getElementById('dpContent');c.textContent=S.docResult;c.style.display='block';
+    document.getElementById('dpDl').style.display='flex';
+    document.getElementById('cpyDocBtn').style.display='flex';document.getElementById('dlDocBtn').style.display='flex';
+    toast('Belge hazır','ok');
+  }catch(e){document.getElementById('dpGen').style.display='none';document.getElementById('dpPh').style.display='flex';toast('Hata: '+e.message,'er')}
+}
+function cpyDoc(){if(S.docResult)navigator.clipboard.writeText(S.docResult).then(()=>toast('Kopyalandı','ok'))}
+function dlDoc(){if(!S.docResult){toast('Önce belge oluşturun','wn');return}const b=new Blob([S.docResult],{type:'text/plain;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`${DOC_NAMES[S.docType]}_${Date.now()}.txt`;a.click();URL.revokeObjectURL(u);toast('İndirildi','ok')}
+
+// ── PRICING ──
+function togBill(){S.yearly=!S.yearly;const t=document.getElementById('billTog');t.classList.toggle('on',S.yearly);document.getElementById('saveTag').style.display=S.yearly?'inline-flex':'none';document.getElementById('proP').innerHTML=S.yearly?'<sup>₺</sup>239 <span>/ ay</span> <span class="p-old">₺299</span>':'<sup>₺</sup>299 <span>/ ay</span>';document.getElementById('proT').textContent=S.yearly?'Yıllık ₺2.868 — ₺718 tasarruf':'7 gün ücretsiz deneme';document.getElementById('plusP').innerHTML=S.yearly?'<sup>₺</sup>479 <span>/ ay</span> <span class="p-old">₺599</span>':'<sup>₺</sup>599 <span>/ ay</span>';document.getElementById('plusT').textContent=S.yearly?'Yıllık ₺5.748 — ₺1.440 tasarruf':'7 gün ücretsiz deneme'}
+function selPlan(p){S.plan=p;if(!S.user){openM('regModal');document.querySelectorAll('.pt').forEach((t,i)=>{t.classList.remove('act');if((p==='pro'&&i===1)||(p==='plus'&&i===2))t.classList.add('act')});return}openM('payModal');document.getElementById('payPN').textContent=p==='pro'?'Pro':'Plus';document.getElementById('payPP').textContent=p==='pro'?'₺299/ay':'₺599/ay';document.getElementById('paySubTitle').textContent=p==='pro'?'Pro Plan — 7 gün ücretsiz deneme':'Plus Plan — 7 gün ücretsiz deneme'}
+
+// ── PAYMENT ──
+function payTab(t,btn){document.querySelectorAll('.pay-t').forEach(b=>b.classList.remove('act'));btn.classList.add('act');document.getElementById('cardT').style.display=t==='card'?'block':'none';document.getElementById('trT').style.display=t==='tr'?'block':'none';document.getElementById('coupT').style.display=t==='coup'?'block':'none'}
+function fmtCard(inp){let v=inp.value.replace(/\D/g,'').substring(0,16);inp.value=v.replace(/(\d{4})(?=\d)/g,'$1 ');['vi','mc','tr'].forEach(i=>document.getElementById(i)?.classList.remove('hi'));if(v.startsWith('4'))document.getElementById('vi').classList.add('hi');else if(v.startsWith('5'))document.getElementById('mc').classList.add('hi');else if(v.startsWith('9'))document.getElementById('tr').classList.add('hi')}
+function fmtExp(inp){let v=inp.value.replace(/\D/g,'');if(v.length>=2)v=v.substring(0,2)+'/'+v.substring(2,4);inp.value=v}
+function applyCoup(){const c=document.getElementById('couIn').value.trim().toUpperCase();const r=document.getElementById('couRes');if(c==='HUKUKAI50'){r.innerHTML='<p style="color:var(--ok);font-size:13px;margin-top:7px">✓ %50 indirim uygulandı!</p>';toast('%50 indirim!','ok')}else{r.innerHTML='<p style="color:var(--err);font-size:13px;margin-top:7px">Geçersiz kupon kodu</p>'}}
+function doPay(){const n=document.getElementById('cName').value,num=document.getElementById('cNum').value;if(!n||!num){toast('Kart bilgilerini doldurun','er');return}const b=document.getElementById('payBtn');b.disabled=true;b.textContent='İşleniyor…';setTimeout(()=>{document.getElementById('payBody').style.display='none';document.getElementById('payOk').style.display='block';if(S.user)S.user.plan=S.plan;updNav();setTimeout(()=>{closeM('payModal');toast('Plan aktifleştirildi','ok')},2000)},1800)}
+
+// ── SETTINGS ──
+function setTab(t,btn){['prof','sec','api','notif'].forEach(k=>{const el=document.getElementById('s'+k.charAt(0).toUpperCase()+k.slice(1)+'T');if(el)el.style.display=k===t?'block':'none'});document.querySelectorAll('.set-tabs .pay-t').forEach(b=>b.classList.remove('act'));btn?.classList.add('act')}
+function saveKey(){const k=document.getElementById('apiInp').value.trim();if(!k){toast('Anahtar boş olamaz','er');return}S.key=k;localStorage.setItem('huk_key',k);toast('API anahtarı kaydedildi','ok');closeM('setModal')}
+
+// ── CONTACT ──
+function doCont(){document.getElementById('contBody').style.display='none';document.getElementById('contOk').style.display='block';setTimeout(()=>closeM('contactModal'),3000)}
+
+// ── FAQ ──
+function togFaq(el){el.classList.toggle('open')}
+
+// ── SCROLL ANIM + COUNTER ──
+const obs=new IntersectionObserver(ents=>{ents.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');e.target.querySelectorAll('[data-count]').forEach(animN);if(e.target.hasAttribute('data-count'))animN(e.target)}})}

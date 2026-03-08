@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════
+   HukukAI — Global Styles
+   ═══════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Gece modu (varsayılan) */
+:root,
+[data-theme="dark"] {
+  --bg:        #08090f;
+  --bg2:       #0d0f18;
+  --bg3:       #111420;
+  --surface:   #161927;
+  --surface2:  #1c2133;
+  --gold:      #c8a96e;
+  --gold-lt:   #e2c99a;
+  --gold-dk:   #9a7a44;
+  --gold-dim:  rgba(200,169,110,.12);
+  --gold-glow: rgba(200,169,110,.22);
+  --line:      rgba(200,169,110,.13);
+  --line2:     rgba(200,169,110,.28);
+  --txt:       #e8eaf2;
+  --txt2:      #7d8aab;
+  --txt3:      #3e4a65;
+  --ok:        #2db87a;
+  --err:       #e05252;
+  --warn:      #d4930a;
+  --r:         14px;
+  --r-sm:      8px;
+  --r-pill:    999px;
+  --ease:      .22s cubic-bezier(.4,0,.2,1);
+}
+
+/* Gündüz modu */
+[data-theme="light"] {
+  --bg:        #f8f9fc;
+  --bg2:       #eef0f5;
+  --bg3:       #e4e7ef;
+  --surface:   #ffffff;
+  --surface2:  #f2f4f8;
+  --gold:      #a67c52;
+  --gold-lt:   #c8a06a;
+  --gold-dk:   #8b6914;
+  --gold-dim:  rgba(166,124,82,.12);
+  --gold-glow: rgba(166,124,82,.18);
+  --line:      rgba(0,0,0,.08);
+  --line2:     rgba(0,0,0,.15);
+  --txt:       #1a1d26;
+  --txt2:      #4a5568;
+  --txt3:      #718096;
+  --ok:        #2d8f5f;
+  --err:       #c53030;
+  --warn:      #b7791f;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  overflow-x: hidden;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--gold-dk); border-radius: 2px; }
+
+::selection {
+  background: var(--gold-dim);
+  color: var(--gold-lt);
+}
+
+.fi {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--txt);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  transition: border-color var(--ease);
+  outline: none;
+}
+
+.fi:focus {
+  border-color: var(--gold);
+}
+
+.fi::placeholder {
+  color: var(--txt3);
+}
+
+.fta {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--txt);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--ease);
+  outline: none;
+}
+
+.fta:focus {
+  border-color: var(--gold);
+}
+
+.fs {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--txt);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color var(--ease);
+  outline: none;
+  appearance: none;
+}
+
+.fs:focus {
+  border-color: var(--gold);
+}
+
+.fg {
+  margin-bottom: 13px;
+}
+
+.fl {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--txt2);
+  margin-bottom: 6px;
+}
+
+.fl-req {
+  color: var(--err);
+}
+
+.serif {
+  font-family: 'Libre Baskerville', serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
