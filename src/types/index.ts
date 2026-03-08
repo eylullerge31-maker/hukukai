@@ -44,6 +44,7 @@ export interface DocumentField {
   placeholder?: string;
   required?: boolean;
   options?: string[]; // select tipi için
+  showWhen?: { fieldId: string; values: string[] }; // Sadece bu değerler seçildiğinde göster
 }
 
 export interface DocumentTemplate {

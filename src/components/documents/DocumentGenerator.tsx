@@ -21,10 +21,24 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
   const [loading, setLoading] = useState(false);
 
   const handleFieldChange = (id: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [id]: value };
+      const triggerField = selected?.fields.find((f) => f.id === id);
+      if (triggerField?.type === "select") {
+        selected?.fields
+          .filter((f) => f.showWhen?.fieldId === id && !f.showWhen.values.includes(value))
+          .forEach((f) => delete next[f.id]);
+      }
+      return next;
+    });
   };
 
-  const requiredFields = selected?.fields.filter((f) => f.required) ?? [];
+  const visibleFields = selected?.fields.filter((f) => {
+    if (!f.showWhen) return true;
+    const v = formData[f.showWhen.fieldId] ?? "";
+    return f.showWhen.values.includes(v);
+  }) ?? [];
+  const requiredFields = visibleFields.filter((f) => f.required);
   const allRequiredFilled = requiredFields.every((f) => (formData[f.id] ?? "").trim().length > 0);
 
   const handleGenerate = async () => {

@@ -30,9 +30,21 @@ export async function generateDocument(
     messages: [
       {
         role: "system",
-        content: `Türk hukuku uzmanısın. Kullanıcı SADECE belirtilen belge tipini istiyor. O tip dışında başka yapı/form kullanma (örn. İş Davası yapısını Vekaletname'de kullanma).
+        content: `Türk hukuku uzmanısın. Kullanıcı SADECE belirtilen belge tipini istiyor. O tip dışında başka yapı kullanma.
 
-Kullanıcının verdiği bilgilere göre resmi, profesyonel Türkçe hukuki belge oluştur. Başlık büyük harf. Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle.
+TAM DİLEKÇE FORMATI (zorunlu sıra):
+1. Başlık (büyük harf, ortalanmış): BELGE ADI
+2. Tarih: 00.00.0000
+3. Muhatap: İLGİLİ MAHKEMEYE (veya kurum)
+4. DAVACI: Ad Soyad, Adres, Telefon (placeholder [Davacının adresi] kullanılabilir)
+5. DAVALI: Ad/Şirket, Adres, Telefon
+6. KONU: Tek cümle
+7. AÇIKLAMALAR: Numaralı paragraflar (1. 2. 3.)
+8. TALEP: Açık talep cümlesi
+9. "Gereğini arz ederim."
+10. İmza (alt çizgi ile boş alan)
+
+İş Davası için "Talep Türü" değerine göre farklı hukuki dayanak ve paragraf yapısı kullan. Resmi, profesyonel Türkçe. Türkçe karakterleri doğru kullan (ş, ğ, ü, ö, ç, ı, İ).
 
 Belge sonunda MUTLAKA şu dipnotu ekle (aynı formatta):
 ---

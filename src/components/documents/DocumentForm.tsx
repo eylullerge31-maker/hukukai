@@ -3,6 +3,12 @@
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import type { DocumentField } from "@/types";
 
+function isFieldVisible(field: DocumentField, values: Record<string, string>): boolean {
+  if (!field.showWhen) return true;
+  const triggerValue = values[field.showWhen.fieldId] ?? "";
+  return field.showWhen.values.includes(triggerValue);
+}
+
 interface DocumentFormProps {
   fields: DocumentField[];
   values: Record<string, string>;
@@ -10,9 +16,10 @@ interface DocumentFormProps {
 }
 
 export function DocumentForm({ fields, values, onChange }: DocumentFormProps) {
+  const visibleFields = fields.filter((f) => isFieldVisible(f, values));
   return (
     <div className="space-y-4">
-      {fields.map((field) => {
+      {visibleFields.map((field) => {
         if (field.type === "textarea") {
           return (
             <Textarea
