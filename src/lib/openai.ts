@@ -22,14 +22,17 @@ export async function getChatResponse(
 export async function generateDocument(
   docType: string,
   docName: string,
-  formData: Record<string, string>
+  formData: Record<string, string>,
+  fieldLabels?: Record<string, string>
 ) {
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
-        content: `Türk hukuku uzmanısın. Kullanıcının bilgilerine göre resmi, profesyonel Türkçe hukuki belge oluştur. Başlık büyük harf. Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle.
+        content: `Türk hukuku uzmanısın. Kullanıcı SADECE belirtilen belge tipini istiyor. O tip dışında başka yapı/form kullanma (örn. İş Davası yapısını Vekaletname'de kullanma).
+
+Kullanıcının verdiği bilgilere göre resmi, profesyonel Türkçe hukuki belge oluştur. Başlık büyük harf. Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle.
 
 Belge sonunda MUTLAKA şu dipnotu ekle (aynı formatta):
 ---
@@ -38,7 +41,14 @@ Bu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak nite
       },
       {
         role: "user",
-        content: `${docName} belgesi oluştur.\nBilgiler: ${JSON.stringify(formData)}\nTarih: ${new Date().toLocaleDateString("tr-TR")}`,
+        content: `SADECE "${docName}" (tip: ${docType}) belgesi oluştur. Başka belge tipi ile karıştırma.
+
+Bilgiler:\n${Object.entries(formData)
+          .filter(([, v]) => v)
+          .map(([k, v]) => `- ${fieldLabels?.[k] ?? k}: ${v}`)
+          .join("\n")}
+
+Tarih: ${new Date().toLocaleDateString("tr-TR")}`,
       },
     ],
     max_tokens: 1500,

@@ -115,6 +115,7 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
               {selected.name} — Bilgileri Doldurun
             </h3>
             <DocumentForm
+              key={selected.type}
               fields={selected.fields}
               values={formData}
               onChange={handleFieldChange}

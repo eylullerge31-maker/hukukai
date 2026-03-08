@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateDocument } from "@/lib/openai";
-import { DOC_NAMES } from "@/lib/constants";
+import { DOC_NAMES, DOCUMENT_TEMPLATES } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rateLimit";
 
 const DOCUMENT_FOOTER =
@@ -55,12 +55,17 @@ export async function POST(request: NextRequest) {
     }
 
     const docName = DOC_NAMES[docType] ?? docType;
+    const template = DOCUMENT_TEMPLATES.find((t) => t.type === docType);
+    const fieldLabels: Record<string, string> = {};
+    template?.fields.forEach((f) => {
+      fieldLabels[f.id] = f.label;
+    });
 
     let content: string;
     try {
       const timeoutMs = 45000;
       content = await Promise.race([
-        generateDocument(docType, docName, formData),
+        generateDocument(docType, docName, formData, fieldLabels),
         new Promise<string>((_, reject) =>
           setTimeout(() => reject(new Error("Zaman aşımı")), timeoutMs)
         ),
