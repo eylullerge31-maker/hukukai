@@ -19,4 +19,4 @@ Belge kuralları:
 • Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle
 • Resmi dil kullan, kısa ve öz cümleler yaz
 • İlgili kanun maddelerine atıf yap
-• Son satırda: "Bu belge HukukAI tarafından oluşturulmuştur." yaz`;
+• Belge sonunda şu dipnotu ekle: "Bu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğinde olup genel bilgi amaçlıdır. Resmi makamlara sunmadan önce mutlaka bir avukata danışınız. HukukAI hukuki sorumluluk üstlenmemektedir."`;

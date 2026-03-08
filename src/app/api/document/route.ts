@@ -3,6 +3,17 @@ import { generateDocument } from "@/lib/openai";
 import { DOC_NAMES } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rateLimit";
 
+const DOCUMENT_FOOTER =
+  "\n\n---\nBu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğinde olup genel bilgi amaçlıdır. Resmi makamlara sunmadan veya hukuki işlemde kullanmadan önce mutlaka bir avukata danışınız. HukukAI bu belgenin kullanımından doğabilecek hukuki sonuçlardan sorumlu değildir.\n---";
+
+function ensureFooter(content: string): string {
+  const oldShort = "Bu belge HukukAI tarafından oluşturulmuştur.";
+  const hasNewFooter = content.includes("Resmi makamlara sunmadan");
+  if (hasNewFooter) return content;
+  let clean = content.replace(new RegExp(oldShort.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), "").trimEnd();
+  return clean + DOCUMENT_FOOTER;
+}
+
 function buildFallbackDocument(docName: string, formData: Record<string, string>): string {
   const tarih = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
   const bilgiler = Object.values(formData).filter(Boolean).join(", ");
@@ -17,7 +28,9 @@ function buildFallbackDocument(docName: string, formData: Record<string, string>
     "",
     "İmza",
     "",
-    "Bu belge HukukAI tarafından oluşturulmuştur.",
+    "---",
+    "Bu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğinde olup genel bilgi amaçlıdır. Resmi makamlara sunmadan veya hukuki işlemde kullanmadan önce mutlaka bir avukata danışınız. HukukAI bu belgenin kullanımından doğabilecek hukuki sonuçlardan sorumlu değildir.",
+    "---",
   ];
   return lines.join("\n");
 }
@@ -57,6 +70,7 @@ export async function POST(request: NextRequest) {
       content = buildFallbackDocument(docName, formData);
     }
 
+    content = ensureFooter(content);
     return NextResponse.json({ content });
   } catch (error) {
     console.error("Document API hatası:", error);

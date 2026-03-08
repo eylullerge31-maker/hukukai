@@ -24,6 +24,9 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const requiredFields = selected?.fields.filter((f) => f.required) ?? [];
+  const allRequiredFilled = requiredFields.every((f) => (formData[f.id] ?? "").trim().length > 0);
+
   const handleGenerate = async () => {
     if (!selected) return;
     setLoading(true);
@@ -44,17 +47,16 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
       if (res.ok && data.content) {
         setGenerated(data.content);
         addToast?.("Belge oluşturuldu!", "ok");
+        setStep(3);
       } else {
         const msg = data.error || "Belge oluşturulurken bir hata oluştu.";
-        setGenerated(msg);
         addToast?.(msg, "error");
+        setGenerated(null);
       }
-      setStep(3);
     } catch {
       const msg = "Bağlantı hatası. Lütfen tekrar deneyin.";
-      setGenerated(msg);
       addToast?.(msg, "error");
-      setStep(3);
+      setGenerated(null);
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,11 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
                 key={t.type}
                 template={t}
                 selected={selected?.type === t.type}
-                onClick={() => setSelected(t)}
+                onClick={() => {
+                  setSelected(t);
+                  setFormData({});
+                  setGenerated(null);
+                }}
               />
             ))}
           </div>
@@ -119,22 +125,42 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
         {step === 3 && (
           <div>
             {generated ? (
-              <DocumentPreview content={generated} docName={selected?.name ?? "Belge"} />
+              <DocumentPreview
+                content={generated}
+                docName={selected?.name ?? "Belge"}
+                onCopySuccess={() => addToast?.("Kopyalandı!", "ok")}
+              />
             ) : loading ? (
               <div className="flex items-center justify-center gap-2 py-12 text-gold">
                 <Loader2 className="w-6 h-6 animate-spin" />
                 Belge oluşturuluyor...
               </div>
-            ) : null}
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-txt2">Belge oluşturulamadı. Lütfen tekrar deneyin veya bilgilerinizi kontrol edin.</p>
+                <Button variant="secondary" onClick={() => setStep(2)} className="mt-4">
+                  Forma Dön
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
         <div className="flex justify-between mt-8">
           <Button
             variant="ghost"
-            onClick={() =>
-              step === 1 ? null : step === 2 ? setStep(1) : setStep(2)
-            }
+            onClick={() => {
+              if (step === 1) return;
+              if (step === 2) {
+                setStep(1);
+                setSelected(null);
+                setFormData({});
+                setGenerated(null);
+              } else {
+                setStep(2);
+                setGenerated(null);
+              }
+            }}
             leftIcon={<ArrowLeft className="w-4 h-4" />}
             className={step === 1 ? "invisible" : ""}
           >
@@ -143,7 +169,13 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
           {step === 1 && (
             <Button
               variant="primary"
-              onClick={() => selected && setStep(2)}
+              onClick={() => {
+                if (selected) {
+                  setFormData({});
+                  setGenerated(null);
+                  setStep(2);
+                }
+              }}
               disabled={!selected}
               rightIcon={<ArrowRight className="w-4 h-4" />}
             >
@@ -154,7 +186,7 @@ export function DocumentGenerator({ addToast }: DocumentGeneratorProps = {}) {
             <Button
               variant="primary"
               onClick={handleGenerate}
-              disabled={loading}
+              disabled={loading || !allRequiredFilled}
               rightIcon={
                 loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

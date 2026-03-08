@@ -29,7 +29,12 @@ export async function generateDocument(
     messages: [
       {
         role: "system",
-        content: `Türk hukuku uzmanısın. Kullanıcının bilgilerine göre resmi, profesyonel Türkçe hukuki belge oluştur. Başlık büyük harf. Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle. Son satırda: "Bu belge HukukAI tarafından oluşturulmuştur." yaz.`,
+        content: `Türk hukuku uzmanısın. Kullanıcının bilgilerine göre resmi, profesyonel Türkçe hukuki belge oluştur. Başlık büyük harf. Tarih, taraf bilgileri, hukuki dayanak, talep ve imza alanı ekle.
+
+Belge sonunda MUTLAKA şu dipnotu ekle (aynı formatta):
+---
+Bu belge HukukAI yapay zeka platformu tarafından oluşturulmuştur. Taslak niteliğinde olup genel bilgi amaçlıdır. Resmi makamlara sunmadan veya hukuki işlemde kullanmadan önce mutlaka bir avukata danışınız ve belgenizi inceletiniz. HukukAI bu belgenin kullanımından doğabilecek hukuki sonuçlardan sorumlu değildir.
+---`,
       },
       {
         role: "user",
